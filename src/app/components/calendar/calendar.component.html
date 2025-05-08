@@ -1,0 +1,41 @@
+
+<main class="main-content">
+    <h1 class="page-title">CALENDER</h1>
+    
+    <div class="calendar-container">
+        <div class="calendar-navigation">
+            <button class="calendar-nav-button" (click)="previousMonth()">
+                <span class="icon arrow-left"></span> Previous
+            </button>
+            <div class="calendar-month-year">{{ currentMonth }} {{ currentYear }}</div>
+            <button class="calendar-nav-button" (click)="nextMonth()">
+                Next <span class="icon arrow-right"></span>
+            </button>
+        </div>
+        <table class="calendar-grid">
+            <thead>
+                <tr>
+                    <th>Sun</th>
+                    <th>Mon</th>
+                    <th>Tue</th>
+                    <th>Wed</th>
+                    <th>Thu</th>
+                    <th>Fri</th>
+                    <th>Sat</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let week of calendar">
+                    <td *ngFor="let day of week" [class.other-month]="day.isOtherMonth" [class.today]="isToday(day)">
+                        <div class="calendar-date">{{ day.date }}</div>
+                        <div *ngFor="let event of day.events" class="calendar-event" (click)="showEventDetails(event)">
+                            {{ event.title }}
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+

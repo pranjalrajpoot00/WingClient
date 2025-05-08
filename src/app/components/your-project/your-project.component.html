@@ -1,0 +1,72 @@
+<div class="header">
+    <div class="logo-container">
+        <!-- Logo and company name -->
+        <svg class="logo" viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="25" cy="25" r="20" fill="white" />
+            <g stroke="white" stroke-width="1.5">
+                <line x1="25" y1="5" x2="25" y2="0" />
+                <line x1="32" y1="7" x2="35" y2="3" />
+                <line x1="37" y1="13" x2="42" y2="10" />
+                <line x1="39" y1="20" x2="45" y2="20" />
+                <line x1="37" y1="27" x2="42" y2="30" />
+                <line x1="32" y1="33" x2="35" y2="37" />
+                <line x1="25" y1="35" x2="25" y2="40" />
+                <line x1="18" y1="33" x2="15" y2="37" />
+                <line x1="13" y1="27" x2="8" y2="30" />
+                <line x1="11" y1="20" x2="5" y2="20" />
+                <line x1="13" y1="13" x2="8" y2="10" />
+                <line x1="18" y1="7" x2="15" y2="3" />
+            </g>
+        </svg>
+        <div>
+            <div class="company-name">Pratt & Whitney</div>
+            <div class="subtitle">An RTX Business</div>
+        </div>
+    </div>
+</div>
+
+<div class="breadcrumb">
+    <a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z"/>
+    </svg></a>
+    <span> > Your Projects</span>
+</div>
+
+<div class="content">
+    <div class="projects-header">
+        <h2>Your Projects</h2>
+        <button class="create-btn" (click)="navigateToCreateProject()">Create New Project</button>
+    </div>
+
+    <div class="projects-grid">
+        <div class="project-card" *ngFor="let project of projects">
+            <div class="project-header">
+                <h3>{{project.name}}</h3>
+                <span class="status-badge" [ngClass]="getStatusClass(project.status)">{{project.status}}</span>
+            </div>
+            <p class="project-description">{{project.description}}</p>
+            <div class="project-details">
+                <div class="detail">
+                    <label>Start Date:</label>
+                    <span>{{project.startDate | date}}</span>
+                </div>
+                <div class="detail">
+                    <label>End Date:</label>
+                    <span>{{project.endDate | date}}</span>
+                </div>
+                <div class="detail">
+                    <label>Team Members:</label>
+                    <span>{{project.teamMembers.join(', ')}}</span>
+                </div>
+            </div>
+            <div class="project-actions">
+                <button class="action-btn delete-btn" (click)="deleteProject(project)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div> 

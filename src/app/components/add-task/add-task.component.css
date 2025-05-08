@@ -1,0 +1,499 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f0f2f5;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #1e3a8a;
+    color: white;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 40px;
+    margin-right: 10px;
+}
+
+.logo-text {
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.logo-subtext {
+    color: #ddd;
+    font-size: 12px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    color: white;
+}
+
+.user-info .user-icon {
+    background-color: white;
+    color: #1e3a8a;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+}
+
+.breadcrumb {
+    padding: 10px 20px;
+    color: #666;
+    font-size: 14px;
+}
+
+.breadcrumb a {
+    color: #1e3a8a;
+    text-decoration: none;
+}
+
+.navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    margin-bottom: 20px;
+}
+
+.tabs {
+    display: flex;
+    position: relative;
+    margin: 0 auto;
+}
+
+.tab {
+    padding: 10px 20px;
+    color: white;
+    background-color: #1e3a8a;
+    text-decoration: none;
+    font-weight: bold;
+    margin-right: 2px;
+    cursor: pointer;
+}
+
+.tab.active {
+    background-color: #2a4caf;
+    position: relative;
+}
+
+.tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #2a4caf;
+}
+
+.home-btn {
+    background-color: #1e3a8a;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.home-btn i {
+    margin-right: 5px;
+}
+
+.page-title {
+    text-align: center;
+    color: #1e3a8a;
+    margin: 20px 0;
+    font-size: 24px;
+}
+
+.tasks-container {
+    width: 90%;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.tasks-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tasks-table th {
+    background-color: #f8f9fa;
+    color: #1e3a8a;
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.tasks-table td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    color: #333;
+}
+
+.tasks-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.file-icon {
+    color: #1e3a8a;
+}
+
+.action-icons a {
+    color: #1e3a8a;
+    margin-right: 10px;
+    text-decoration: none;
+}
+
+.status {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+}
+
+.status-completed {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-review {
+    background-color: #fff8e1;
+    color: #ff8f00;
+}
+
+.status-testing {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
+
+.status-progress {
+    background-color: #ede7f6;
+    color: #5e35b1;
+}
+
+.add-task-btn {
+    display: block;
+    width: 120px;
+    padding: 10px;
+    background-color: #1e3a8a;
+    color: white;
+    text-align: center;
+    border-radius: 5px;
+    margin: 20px auto;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.back-btn {
+    color: #1e3a8a;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    margin: 20px;
+    font-size: 18px;
+}
+
+.footer {
+    background-color: #1e3a8a;
+    color: white;
+    text-align: right;
+    padding: 10px 20px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+.logout-btn {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.logout-btn i {
+    margin-left: 5px;
+}
+
+/* Add Task Form Styles */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.add-task-form {
+    background-color: #1e3a8a;
+    color: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 500px;
+    position: relative;
+}
+
+.add-task-form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+
+.form-row {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.form-row label {
+    width: 120px;
+    text-align: right;
+    margin-right: 15px;
+    font-size: 16px;
+}
+
+.form-row input, .form-row textarea, .form-row select {
+    flex: 1;
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+    font-size: 14px;
+}
+
+.form-row textarea {
+    height: 80px;
+    resize: none;
+}
+
+.ok-button {
+    display: block;
+    width: 80px;
+    padding: 8px 0;
+    text-align: center;
+    background-color: #f8f9fa;
+    color: #1e3a8a;
+    border: none;
+    border-radius: 5px;
+    margin: 20px auto 0;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Comment Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 50%;
+    max-width: 600px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-title {
+    color: #1e3a8a;
+    font-size: 18px;
+}
+
+.close-btn {
+    cursor: pointer;
+    font-size: 20px;
+    color: #666;
+}
+
+.comments-section {
+    margin-top: 15px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.comments-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.comment {
+    padding: 10px;
+    background-color: #f8f9fa;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.comment-body {
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #666;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.btn-primary {
+    background-color: #1e3a8a;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #ddd;
+    color: #333;
+}
+
+/* Resource Management Styles */
+.resource-management {
+    margin-top: 20px;
+}
+
+.resources-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.resources-table th,
+.resources-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.resources-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+.assigned-tasks {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    margin-bottom: 4px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.task-name {
+    font-weight: 500;
+}
+
+.task-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.no-tasks {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Status colors for tasks */
+.status-completed {
+    background-color: #28a745;
+    color: white;
+}
+
+.status-review {
+    background-color: #ffc107;
+    color: black;
+}
+
+.status-testing {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.status-progress {
+    background-color: #007bff;
+    color: white;
+}

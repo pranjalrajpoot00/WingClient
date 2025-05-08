@@ -1,0 +1,120 @@
+<div class="header">
+    <div class="logo-container">
+        <img src="/logo.png" alt="Pratt & Whitney Logo" class="logo">
+    </div>
+</div>
+
+<div class="breadcrumb">
+    <a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z"/>
+    </svg></a>
+    <span> > {{ isEditing ? 'Edit Project' : 'Create Project' }}</span>
+</div>
+
+<div class="content">
+    <div class="form-container">
+        <h2 class="form-title">{{ isEditing ? 'Edit Project' : 'Create New Project' }}</h2>
+        <form [formGroup]="projectForm" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+                <label>Project Name</label>
+                <input type="text" class="form-control" placeholder="Enter project name" formControlName="name">
+                <div class="error-message" *ngIf="name?.invalid && (name?.dirty || name?.touched)">
+                    <span *ngIf="name?.errors?.['required']">Project name is required</span>
+                    <span *ngIf="name?.errors?.['minlength']">Project name must be at least 3 characters</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea class="form-control" placeholder="Enter project description" formControlName="description"></textarea>
+                <div class="error-message" *ngIf="description?.invalid && (description?.dirty || description?.touched)">
+                    <span *ngIf="description?.errors?.['required']">Description is required</span>
+                    <span *ngIf="description?.errors?.['minlength']">Description must be at least 10 characters</span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" class="form-control" formControlName="startDate">
+                    <div class="error-message" *ngIf="startDate?.invalid && (startDate?.dirty || startDate?.touched)">
+                        <span *ngIf="startDate?.errors?.['required']">Start date is required</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input type="date" class="form-control" formControlName="endDate">
+                    <div class="error-message" *ngIf="endDate?.invalid && (endDate?.dirty || endDate?.touched)">
+                        <span *ngIf="endDate?.errors?.['required']">End date is required</span>
+                    </div>
+                </div>
+            </div>
+            <div class="error-message" *ngIf="projectForm.errors?.['dateRange']">
+                End date must be after start date
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Status</label>
+                    <select class="form-control" formControlName="status">
+                        <option value="Not Started">Not Started</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                    <div class="error-message" *ngIf="status?.invalid && (status?.dirty || status?.touched)">
+                        <span *ngIf="status?.errors?.['required']">Status is required</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select class="form-control" formControlName="priority">
+                        <option *ngFor="let priority of priorities" [value]="priority">{{priority}}</option>
+                    </select>
+                    <div class="error-message" *ngIf="priority?.invalid && (priority?.dirty || priority?.touched)">
+                        <span *ngIf="priority?.errors?.['required']">Priority is required</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Department</label>
+                    <select class="form-control" formControlName="department">
+                        <option *ngFor="let dept of departments" [value]="dept">{{dept}}</option>
+                    </select>
+                    <div class="error-message" *ngIf="department?.invalid && (department?.dirty || department?.touched)">
+                        <span *ngIf="department?.errors?.['required']">Department is required</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Budget</label>
+                    <input type="number" class="form-control" formControlName="budget">
+                    <div class="error-message" *ngIf="budget?.invalid && (budget?.dirty || budget?.touched)">
+                        <span *ngIf="budget?.errors?.['required']">Budget is required</span>
+                        <span *ngIf="budget?.errors?.['min']">Budget must be positive</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Team Members</label>
+                <select class="form-control" multiple formControlName="teamMembers">
+                    <option *ngFor="let user of availableUsers" [value]="user.username">{{user.name}} ({{user.role}})</option>
+                </select>
+            </div>
+            <div class="btn-container">
+                <button class="btn" type="submit" [disabled]="projectForm.invalid">{{ isEditing ? 'Update Project' : 'Create Project' }}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal-overlay" *ngIf="showSuccessModal" (click)="closeModal()">
+    <div class="modal">
+        <span class="modal-close" (click)="closeModal()">&times;</span>
+        <div class="success-icon">
+            <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        </div>
+        <h2 class="modal-title">{{ isEditing ? 'Project Updated' : 'Project Created' }}</h2>
+        <button class="modal-btn" (click)="closeModal()">View Projects</button>
+    </div>
+</div> 

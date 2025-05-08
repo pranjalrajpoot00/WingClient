@@ -1,0 +1,129 @@
+<div class="header">
+    <div class="logo-container">
+        <img src="/logo.png" alt="Pratt & Whitney Logo" class="logo">
+    </div>
+</div>
+
+<div class="breadcrumb">
+    <a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z"/>
+    </svg></a>
+    <span> > Projects</span>
+</div>
+
+<div class="content">
+    <div class="projects-header">
+        <h2>Projects</h2>
+        <button class="create-btn" (click)="navigateToCreateProject()">Create New Project</button>
+    </div>
+
+    <div class="filters-container">
+        <div class="search-box">
+            <input type="text" 
+                   placeholder="Search projects..." 
+                   [(ngModel)]="filterOptions.search"
+                   (input)="onSearch()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+        </div>
+
+        <div class="filters">
+            <select [(ngModel)]="filterOptions.status" (change)="onFilterChange()">
+                <option value="">All Statuses</option>
+                <option *ngFor="let status of statuses" [value]="status">{{status}}</option>
+            </select>
+
+            <select [(ngModel)]="filterOptions.priority" (change)="onFilterChange()">
+                <option value="">All Priorities</option>
+                <option *ngFor="let priority of priorities" [value]="priority">{{priority}}</option>
+            </select>
+
+            <select [(ngModel)]="filterOptions.department" (change)="onFilterChange()">
+                <option value="">All Departments</option>
+                <option *ngFor="let dept of departments" [value]="dept">{{dept}}</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="projects-table">
+        <table>
+            <thead>
+                <tr>
+                    <th (click)="onSort('name')" [class.sorted]="sortOptions.field === 'name'">
+                        Name
+                        <span class="sort-icon" *ngIf="sortOptions.field === 'name'">
+                            {{sortOptions.direction === 'asc' ? '↑' : '↓'}}
+                        </span>
+                    </th>
+                    <th (click)="onSort('status')" [class.sorted]="sortOptions.field === 'status'">
+                        Status
+                        <span class="sort-icon" *ngIf="sortOptions.field === 'status'">
+                            {{sortOptions.direction === 'asc' ? '↑' : '↓'}}
+                        </span>
+                    </th>
+                    <th (click)="onSort('priority')" [class.sorted]="sortOptions.field === 'priority'">
+                        Priority
+                        <span class="sort-icon" *ngIf="sortOptions.field === 'priority'">
+                            {{sortOptions.direction === 'asc' ? '↑' : '↓'}}
+                        </span>
+                    </th>
+                    <th (click)="onSort('department')" [class.sorted]="sortOptions.field === 'department'">
+                        Department
+                        <span class="sort-icon" *ngIf="sortOptions.field === 'department'">
+                            {{sortOptions.direction === 'asc' ? '↑' : '↓'}}
+                        </span>
+                    </th>
+                    <th (click)="onSort('startDate')" [class.sorted]="sortOptions.field === 'startDate'">
+                        Start Date
+                        <span class="sort-icon" *ngIf="sortOptions.field === 'startDate'">
+                            {{sortOptions.direction === 'asc' ? '↑' : '↓'}}
+                        </span>
+                    </th>
+                    <th (click)="onSort('endDate')" [class.sorted]="sortOptions.field === 'endDate'">
+                        End Date
+                        <span class="sort-icon" *ngIf="sortOptions.field === 'endDate'">
+                            {{sortOptions.direction === 'asc' ? '↑' : '↓'}}
+                        </span>
+                    </th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let project of filteredProjects">
+                    <td>{{project.name}}</td>
+                    <td>
+                        <span class="status-badge" [ngClass]="getStatusClass(project.status)">
+                            {{project.status}}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="priority-badge" [ngClass]="getPriorityClass(project.priority)">
+                            {{project.priority}}
+                        </span>
+                    </td>
+                    <td>{{project.department}}</td>
+                    <td>{{project.startDate | date}}</td>
+                    <td>{{project.endDate | date}}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="action-btn edit-btn" (click)="editProject(project)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                            <button class="action-btn delete-btn" (click)="deleteProject(project)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div> 

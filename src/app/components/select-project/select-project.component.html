@@ -1,0 +1,108 @@
+<header class="header">
+    <div class="logo-container">
+        <img src="/logo.png" alt="Pratt & Whitney Logo" class="logo">
+    </div>
+    <div class="user-info">
+        <div class="user-avatar">
+            <span class="icon avatar-icon"></span>
+        </div>
+        <div>
+            <div class="user-name">Sagar</div>
+            <div class="user-role">PM</div>
+        </div>
+    </div>
+</header>
+
+<nav class="breadcrumb">
+    <a href="#"><span class="icon home-icon" style="width: 16px; height: 16px;"></span></a>
+    <span>&gt;</span>
+    <a href="#">Resource List</a>
+</nav>
+
+<aside class="sidebar">
+    <div class="sidebar-icon">
+        <span class="icon list-icon"></span>
+    </div>
+    <div class="sidebar-icon">
+        <span class="icon user-icon"></span>
+    </div>
+    <div class="sidebar-icon">
+        <span class="icon calendar-icon"></span>
+    </div>
+    <div class="sidebar-icon">
+        <span class="icon help-icon"></span>
+    </div>
+</aside>
+
+<button class="home-button" (click)="navigateToHome()">
+    <span class="icon home-icon"></span>
+    Home
+</button>
+
+<main class="main-content">
+    <div class="page-header">
+        <h1 class="page-title">SELECT PROJECT</h1>
+        <button class="new-project-btn" (click)="navigateToCreateProject()">
+            <i class="fas fa-plus"></i> New Project
+        </button>
+    </div>
+    
+    <div class="project-list">
+        <div *ngFor="let project of projects" class="project-card" (click)="selectProject(project)">
+            <h3>{{ project.name }}</h3>
+            <p>{{ project.description }}</p>
+            <div class="project-details">
+                <span>Start: {{ project.startDate }}</span>
+                <span>End: {{ project.endDate }}</span>
+                <span class="status" [ngClass]="'status-' + project.status.toLowerCase()">{{ project.status }}</span>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="footer">
+    <button class="logout-button" (click)="logout()">
+        Log out
+        <span class="icon logout-icon" style="margin-left: 8px;"></span>
+    </button>
+</footer>
+
+<!-- Project Details Modal -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>{{ selectedProject?.name }}</h2>
+            <span class="status-badge" [ngClass]="'status-' + selectedProject?.status?.toLowerCase()">
+                {{ selectedProject?.status }}
+            </span>
+        </div>
+        <div class="modal-body">
+            <div class="project-info">
+                <div class="info-group">
+                    <label>Description:</label>
+                    <p>{{ selectedProject?.description }}</p>
+                </div>
+                <div class="info-group">
+                    <label>Start Date:</label>
+                    <p>{{ selectedProject?.startDate }}</p>
+                </div>
+                <div class="info-group">
+                    <label>End Date:</label>
+                    <p>{{ selectedProject?.endDate }}</p>
+                </div>
+                <div class="info-group">
+                    <label>Team Members:</label>
+                    <ul>
+                        <li *ngFor="let member of selectedProject?.teamMembers">
+                            {{ member.name }} ({{ member.role }})
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="action-button" (click)="navigateToAddTask()">Assign Task</button>
+            <button class="action-button" (click)="closeModal()">Close</button>
+        </div>
+    </div>
+</div>

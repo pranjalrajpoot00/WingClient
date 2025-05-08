@@ -1,0 +1,180 @@
+.resource-management {
+    .resource-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding: 0 1rem;
+
+        h2 {
+            margin: 0;
+            color: #2c3e50;
+        }
+    }
+
+    .add-member-btn {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: #2980b9;
+        }
+
+        i {
+            font-size: 0.9rem;
+        }
+    }
+
+    .remove-member-btn {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 0.4rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover:not([disabled]) {
+            background-color: #c0392b;
+        }
+
+        &[disabled] {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        i {
+            font-size: 0.9rem;
+        }
+    }
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+
+    .modal-content {
+        background-color: white;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+
+            h2 {
+                margin: 0;
+                color: #2c3e50;
+            }
+
+            .close-btn {
+                font-size: 1.5rem;
+                cursor: pointer;
+                color: #7f8c8d;
+                
+                &:hover {
+                    color: #2c3e50;
+                }
+            }
+        }
+
+        .modal-body {
+            padding: 1rem;
+
+            .available-resources {
+                h3 {
+                    margin-top: 0;
+                    color: #2c3e50;
+                }
+
+                .resource-list {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.8rem;
+
+                    .resource-item {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 0.8rem;
+                        background-color: #f8f9fa;
+                        border-radius: 4px;
+                        border: 1px solid #e9ecef;
+
+                        .resource-info {
+                            display: flex;
+                            gap: 1rem;
+                            align-items: center;
+
+                            .resource-name {
+                                font-weight: 500;
+                            }
+
+                            .resource-role {
+                                color: #6c757d;
+                            }
+
+                            .resource-eid {
+                                color: #6c757d;
+                                font-size: 0.9rem;
+                            }
+                        }
+
+                        .add-resource-btn {
+                            background-color: #2ecc71;
+                            color: white;
+                            border: none;
+                            padding: 0.4rem 0.8rem;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            gap: 0.4rem;
+                            transition: background-color 0.2s;
+
+                            &:hover {
+                                background-color: #27ae60;
+                            }
+
+                            i {
+                                font-size: 0.9rem;
+                            }
+                        }
+                    }
+
+                    .no-resources {
+                        text-align: center;
+                        padding: 2rem;
+                        color: #7f8c8d;
+                        background-color: #f8f9fa;
+                        border-radius: 4px;
+                        border: 1px dashed #e9ecef;
+                    }
+                }
+            }
+        }
+    }
+} 

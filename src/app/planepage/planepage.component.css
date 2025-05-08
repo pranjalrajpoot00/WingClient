@@ -1,0 +1,12 @@
+:host {
+    display: block;
+    height: 100%;
+  }
+  
+  .main-content {
+    margin-left: 60px; /* Match sidebar width */
+    padding: 4px 24px 68px; /* Account for header and footer */
+    min-height: 100vh;
+    transition: margin-left 0.3s ease;
+  }
+  

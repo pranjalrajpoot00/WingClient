@@ -1,0 +1,86 @@
+<div class="header">
+    <div class="logo-container">
+        <img src="/logo.png" alt="Pratt & Whitney Logo" class="logo">
+        
+    </div>
+    <div class="user-info">
+        <div class="user-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"/>
+            </svg>
+        </div>
+        <div>
+            <div class="user-name">Kritika</div>
+            <div class="user-role">Admin</div>
+        </div>
+    </div>
+</div>
+
+<div class="breadcrumb">
+    <a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z"/>
+    </svg></a>
+    <span> > Add new user</span>
+</div>
+
+<div class="tab-container">
+    <div class="tabs">
+        <button class="tab active" (click)="switchTab('add-users')">Add new user</button>
+        <button class="tab" (click)="switchTab('activity-monitoring')">Activity monitoring</button>
+        <button class="tab" (click)="switchTab('manage-users')">Manage users</button>
+    </div>
+</div>
+
+<div class="content">
+    <div class="form-container">
+        <h2 class="form-title">{{ isEditing ? 'Edit User' : 'Add new user' }}</h2>
+        <form (ngSubmit)="onSubmit()">
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Enter name" [(ngModel)]="user.name" name="name" required>
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Enter username" [(ngModel)]="user.username" name="username" required>
+            </div>
+            <div class="form-group">
+                <input type="password" class="form-control" placeholder="Enter Password" [(ngModel)]="user.password" name="password" required>
+            </div>
+            <div class="form-group">
+                <select class="form-control" [(ngModel)]="user.role" name="role" required>
+                    <option value="" disabled selected>Role</option>
+                    <option value="admin">Admin</option>
+                    <option value="manager">Manager</option>
+                    <option value="user">User</option>
+                </select>
+            </div>
+            <div class="btn-container">
+                <button class="btn" type="submit">{{ isEditing ? 'Update User' : 'Add User' }}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal-overlay" *ngIf="showSuccessModal" (click)="closeModal()">
+    <div class="modal">
+        <span class="modal-close" (click)="closeModal()">&times;</span>
+        <div class="success-icon">
+            <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        </div>
+        <h2 class="modal-title">{{ isEditing ? 'User Updated' : 'User Added' }}</h2>
+        <button class="modal-btn" (click)="addAnotherUser()">{{ isEditing ? 'Back to Users' : 'Add Another User' }}</button>
+    </div>
+</div>
+
+<div class="footer">
+    <a href="#" class="logout-btn" (click)="logout()">
+        Log out
+        <svg class="logout-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+    </a>
+</div>

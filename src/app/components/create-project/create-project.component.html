@@ -1,0 +1,133 @@
+<!-- Header -->
+<header>
+    <div class="header">
+        <div class="logo-container">
+            <img src="/logo.png" alt="Pratt & Whitney Logo" class="logo">
+        </div>
+        <div class="user-info">
+            <svg width="30" height="30" viewBox="0 0 30 30">
+                <circle cx="15" cy="15" r="14" fill="#fff" stroke="#1e3671"/>
+                <circle cx="15" cy="10" r="5" fill="#fff" stroke="#1e3671"/>
+                <path d="M5,30 Q15,20 25,30" fill="#fff" stroke="#1e3671"/>
+            </svg>
+            <div>
+                <div class="user-name">Sagar</div>
+                <div class="user-role">PM</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Breadcrumb -->
+<div class="breadcrumb">
+    <a href="#"><span class="icon">🏠</span> Home</a>
+    <span>></span>
+    <a href="#">project management</a>
+    <span>></span>
+    <span>Add project</span>
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <a href="#" title="Menu"><span class="icon">☰</span></a>
+    <a href="#" title="Users"><span class="icon">👥</span></a>
+    <a href="#" title="Calendar"><span class="icon">📅</span></a>
+    <a href="#" title="Help"><span class="icon">❓</span></a>
+</div>
+
+<!-- Tab Navigation -->
+<div class="tab-navigation">
+    <button class="active">Project Management</button>
+</div>
+
+<!-- Home Button -->
+<a href="#" class="home-btn">
+    <span class="icon">🏠</span> Home
+</a>
+
+<!-- Main Content -->
+<div class="main-content">
+    <h1>NEW PROJECT</h1>
+    <form [formGroup]="projectForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <label for="project-name">Name of the Project:</label>
+            <input type="text" id="project-name" formControlName="projectName" 
+                   [class.invalid]="projectForm.get('projectName')?.invalid && projectForm.get('projectName')?.touched">
+            <div class="error-message" *ngIf="projectForm.get('projectName')?.invalid && projectForm.get('projectName')?.touched">
+                Project name is required and must be at least 3 characters long
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="project-description">Description:</label>
+            <textarea id="project-description" formControlName="description" rows="4"
+                      [class.invalid]="projectForm.get('description')?.invalid && projectForm.get('description')?.touched"></textarea>
+            <div class="error-message" *ngIf="projectForm.get('description')?.invalid && projectForm.get('description')?.touched">
+                Description is required and must be at least 10 characters long
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="start-date">Start date:</label>
+            <input type="date" id="start-date" formControlName="startDate"
+                   [class.invalid]="projectForm.get('startDate')?.invalid && projectForm.get('startDate')?.touched">
+            <div class="error-message" *ngIf="projectForm.get('startDate')?.invalid && projectForm.get('startDate')?.touched">
+                Start date is required
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="end-date">End date:</label>
+            <input type="date" id="end-date" formControlName="endDate"
+                   [class.invalid]="projectForm.get('endDate')?.invalid && projectForm.get('endDate')?.touched">
+            <div class="error-message" *ngIf="projectForm.get('endDate')?.invalid && projectForm.get('endDate')?.touched">
+                End date is required
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Team Members:</label>
+            <div class="member-selection">
+                <select (change)="addMember($any($event.target).value)" class="member-select">
+                    <option value="">Select a team member</option>
+                    <option *ngFor="let member of availableMembers" [value]="member.name">
+                        {{ member.name }} ({{ member.role }})
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <div class="selected-members">
+            <div *ngFor="let member of selectedMembers; let i = index" class="member-info">
+                <span class="member-name">{{ member.name }}</span>
+                <span class="member-role">{{ member.role }}</span>
+                <span class="remove-member" (click)="removeMember(i)">×</span>
+            </div>
+        </div>
+        
+        <button type="submit" class="submit-btn">Add project</button>
+    </form>
+</div>
+
+<!-- Back Button -->
+<a href="#" class="back-btn">
+    <span class="icon">◀</span>
+</a>
+
+<!-- Footer -->
+<footer>
+    <a href="#">Log out <span class="icon">↪</span></a>
+</footer>
+
+<!-- Success Modal -->
+<div class="modal" [style.display]="showModal ? 'flex' : 'none'">
+    <div class="modal-content">
+        <span class="close-modal" (click)="closeModal()">×</span>
+        <p class="modal-title">
+            <span class="success-icon">✓</span>
+            Your new project {{projectForm.get('projectName')?.value}} has been added
+        </p>
+        <p class="modal-info">Starts from: {{projectForm.get('startDate')?.value}}</p>
+        <p class="modal-info">Ends on: {{projectForm.get('endDate')?.value}}</p>
+    </div>
+</div>

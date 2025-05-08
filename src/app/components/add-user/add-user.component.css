@@ -1,0 +1,247 @@
+/* Add your CSS as is */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f5f7ff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    background-color: #2d3b6e;
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 40px;
+}
+
+.company-name {
+    margin-left: 10px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.subtitle {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    color: white;
+}
+
+.user-icon {
+    background-color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+}
+
+.user-icon svg {
+    fill: #2d3b6e;
+}
+
+.user-name {
+    font-weight: bold;
+}
+
+.user-role {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.breadcrumb {
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    color: #555;
+}
+
+.breadcrumb a {
+    text-decoration: none;
+    color: #555;
+}
+
+.tab-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.tabs {
+    display: flex;
+    background-color: #2d3b6e;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.tab {
+    padding: 12px 20px;
+    color: white;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+}
+
+.tab.active {
+    background-color: #1e2a5a;
+    position: relative;
+}
+
+.tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #1e2a5a;
+}
+
+.content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    position: relative;
+}
+
+.form-container {
+    width: 100%;
+    max-width: 500px;
+    background-color: #2d3b6e;
+    border-radius: 10px;
+    padding: 30px;
+    color: white;
+}
+
+.form-title {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    margin-top: 5px;
+    background-color: white;
+    color: black;
+}
+
+.form-control:focus {
+    outline: none;
+    background-color: white;
+}
+
+.btn-container {
+    display: flex;
+    justify-content: center;
+}
+
+.btn {
+    background-color: #1e2a5a;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 15px;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.modal {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+}
+
+.success-icon svg {
+    fill: green;
+}
+
+.modal-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.modal-btn {
+    background-color: #1e2a5a;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+
+.footer {
+    background-color: #2d3b6e;
+    padding: 10px 20px;
+    color: white;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.logout-btn {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.logout-icon {
+    margin-left: 5px;
+}

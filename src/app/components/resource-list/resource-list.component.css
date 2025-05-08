@@ -1,0 +1,14 @@
+.filter-bar {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  
+  mat-form-field {
+    width: 250px;
+  }
+  
+  table {
+    width: 100%;
+  }
+  
