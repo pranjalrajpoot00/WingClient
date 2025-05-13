@@ -1,0 +1,204 @@
+<!-- Content Wrapper -->
+<div class="content-wrapper">
+    <!-- Sidebar -->
+    
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="breadcrumb">
+            <a href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="home-icon">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Home
+            </a>
+        </div>
+
+        <!-- Dashboard Container -->
+        <div class="dashboard-container">
+            <!-- Header Section -->
+            <div class="header">
+                <div class="welcome-section">
+                    <h1>Welcome, {{ username }}</h1>
+                    <p class="role-badge">{{ role | titlecase }}</p>
+                </div>
+                <button class="logout-btn" (click)="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="stats-container" *ngIf="!loading">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Active Projects</h3>
+                        <p class="stat-number">{{ stats.activeProjects }}</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Team Members</h3>
+                        <p class="stat-number">{{ stats.totalTeamMembers }}</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Pending Tasks</h3>
+                        <p class="stat-number">{{ stats.pendingTasks }}</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Completed Tasks</h3>
+                        <p class="stat-number">{{ stats.completedTasks }}</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Upcoming Deadlines</h3>
+                        <p class="stat-number">{{ stats.upcomingDeadlines }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div class="loading-container" *ngIf="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading dashboard data...</p>
+            </div>
+
+            <!-- Main Dashboard Grid -->
+            <div class="dashboard-grid" *ngIf="!loading">
+                <!-- Management Section -->
+                <div class="dashboard-card management-card" (click)="navigateToManagement()">
+                    <div class="card-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3z"/>
+                            <path d="M9 2.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3z"/>
+                            <path d="M1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3z"/>
+                            <path d="M9 10.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3z"/>
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <h3>Project Management</h3>
+                        <p>View and manage your projects</p>
+                    </div>
+                </div>
+
+                <!-- My Profile Card -->
+                <div class="dashboard-card" (click)="navigateToProfile()">
+                    <div class="card-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <h3>My Profile</h3>
+                        <p>View and update your profile information</p>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="dashboard-card" (click)="navigateToCreateProject()">
+                    <div class="card-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <h3>New Project</h3>
+                        <p>Create a new project</p>
+                    </div>
+                </div>
+
+                <!-- My Team Card -->
+                <div class="dashboard-card" (click)="navigateToMyTeam()">
+                    <div class="card-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <h3>My Team</h3>
+                        <p>View and manage team members</p>
+                    </div>
+                </div>
+
+                <!-- Project Status Card -->
+                <div class="dashboard-card" (click)="navigateToAnalysis()">
+                    <div class="card-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0v-1zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0V7zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0V9z"/>
+                            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                            <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <h3>Project Status</h3>
+                        <p>View project analytics and insights</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Projects Section -->
+            <div class="recent-projects" *ngIf="!loading && recentProjects.length > 0">
+                <h2>Recent Projects</h2>
+                <div class="projects-table-container">
+                    <table class="projects-table">
+                        <thead>
+                            <tr>
+                                <th>Project Name</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Team Lead</th>
+                                <th>Team Size</th>
+                                <th>Timeline</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let project of recentProjects">
+                                <td>{{ project.projectName }}</td>
+                                <td>
+                                    <span class="status-badge" [ngClass]="getStatusClass(project.status)">
+                                        {{ project.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="priority-badge" [ngClass]="getPriorityClass(project.priority)">
+                                        {{ project.priority }}
+                                    </span>
+                                </td>
+                                <td>{{ project.teamLead }}</td>
+                                <td>{{ project.teamSize }} members</td>
+                                <td>{{ project.startDate | date:'MMM d' }} - {{ project.endDate | date:'MMM d, y' }}</td>
+                                <td>
+                                    <button class="action-btn view-btn" (click)="navigateToProjectDetails(project.projectId)">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

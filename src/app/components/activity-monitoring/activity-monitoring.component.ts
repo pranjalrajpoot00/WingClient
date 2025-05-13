@@ -39,15 +39,6 @@ export class ActivityMonitoringComponent implements OnInit {
     // }
   }
 
-  switchTab(tab: string) {
-    console.log(`${tab}`)
-    this.router.navigate([`/${tab}`]);
-}
-
-  navigateTo(route: string): void {
-    this.router.navigate([`/${route}`]);
-  }
-
   logout(): void {
     if (confirm('Are you sure you want to log out?')) {
       localStorage.removeItem('currentUser');

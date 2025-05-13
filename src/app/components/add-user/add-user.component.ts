@@ -50,15 +50,6 @@ export class AddUserComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Switch between tabs
-  activeTab = 'add'; // Default tab
-
-  switchTab(tab: string) {
-    // console.log(`${tab}`)
-    this.router.navigate([`/${tab}`]);
-    // In a real application, you would handle tab switching logic
-}
-
   onSubmit() {
     if (this.isEditing) {
       this.userService.editUser(this.editIndex, this.user);

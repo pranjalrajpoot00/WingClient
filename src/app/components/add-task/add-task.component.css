@@ -1,62 +1,3 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-body {
-    background-color: #f0f2f5;
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    background-color: #1e3a8a;
-    color: white;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-}
-
-.logo img {
-    height: 40px;
-    margin-right: 10px;
-}
-
-.logo-text {
-    color: white;
-    font-weight: bold;
-    font-size: 18px;
-}
-
-.logo-subtext {
-    color: #ddd;
-    font-size: 12px;
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-    color: white;
-}
-
-.user-info .user-icon {
-    background-color: white;
-    color: #1e3a8a;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 10px;
-}
-
 .breadcrumb {
     padding: 10px 20px;
     color: #666;
@@ -220,28 +161,6 @@ body {
     align-items: center;
     margin: 20px;
     font-size: 18px;
-}
-
-.footer {
-    background-color: #1e3a8a;
-    color: white;
-    text-align: right;
-    padding: 10px 20px;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-}
-
-.logout-btn {
-    color: white;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-}
-
-.logout-btn i {
-    margin-left: 5px;
 }
 
 /* Add Task Form Styles */
