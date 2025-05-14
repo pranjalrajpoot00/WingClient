@@ -22,6 +22,7 @@
                 <th>User</th>
                 <th>Username</th>
                 <th>Role</th>
+                <th>Reports To</th>
                 <th>Manage</th>
             </tr>
         </thead>
@@ -30,6 +31,7 @@
                 <td>{{user.name}}</td>
                 <td>{{user.username}}</td>
                 <td>{{user.role}}</td>
+                <td>{{user.reportsTo || '-'}}</td>
                 <td>
                     <div class="actions">
                         <button class="action-btn edit-btn" (click)="editUser(user)" title="Edit User">
@@ -49,7 +51,7 @@
             </tr>
             <!-- Show message when no users match the search -->
             <tr *ngIf="filteredUsers.length === 0">
-                <td colspan="4" class="no-results">
+                <td colspan="5" class="no-results">
                     No users found matching "{{searchTerm}}"
                 </td>
             </tr>

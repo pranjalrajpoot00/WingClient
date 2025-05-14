@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 interface Activity {
   user: string;
@@ -14,9 +15,8 @@ interface Activity {
   templateUrl: './activity-monitoring.component.html',
   styleUrls: ['./activity-monitoring.component.css'],
   standalone: true,
-  imports: [CommonModule] 
+  imports: [CommonModule, FormsModule]
 })
-
 
 export class ActivityMonitoringComponent implements OnInit {
   activities: Activity[] = [
@@ -29,14 +29,31 @@ export class ActivityMonitoringComponent implements OnInit {
     { user: 'Ninaad', role: 'Developer', action: 'Login', time: '9:00AM' }
   ];
 
+  filteredActivities: Activity[] = [];
+  searchTerm: string = '';
+
   constructor(private router: Router) {}
 
   ngOnInit(): void {
+    // Initialize filtered activities with all activities
+    this.filteredActivities = [...this.activities];
+
     // --- TEMPORARILY DISABLE login checking ---
     // const currentUser = localStorage.getItem('currentUser');
     // if (!currentUser) {
     //   this.router.navigate(['/login']);
     // }
+  }
+
+  filterActivities() {
+    if (!this.searchTerm.trim()) {
+      this.filteredActivities = [...this.activities];
+    } else {
+      const searchLower = this.searchTerm.toLowerCase();
+      this.filteredActivities = this.activities.filter(activity => 
+        activity.user.toLowerCase().includes(searchLower)
+      );
+    }
   }
 
   logout(): void {

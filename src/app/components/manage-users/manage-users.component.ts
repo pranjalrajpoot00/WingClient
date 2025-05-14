@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router, NavigationStart } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UserService, User } from '../../services/user.service';
+import { UserService } from '../../services/user.service';
+import { User } from '../../services/user.model';
+import { Subscription, filter } from 'rxjs';
 
 @Component({
     selector: 'app-manage-users',
@@ -11,7 +13,7 @@ import { UserService, User } from '../../services/user.service';
     templateUrl: './manage-users.component.html',
     styleUrl: './manage-users.component.css'
 })
-export class ManageUsersComponent implements OnInit {
+export class ManageUsersComponent implements OnInit, OnDestroy {
     users: User[] = [];
     filteredUsers: User[] = [];
     searchTerm: string = '';
@@ -24,8 +26,15 @@ export class ManageUsersComponent implements OnInit {
     ngOnInit() {
         this.userService.getUsers().subscribe(users => {
             this.users = users;
-            this.filteredUsers = users; // Initialize filtered users with all users
+            this.filteredUsers = users;
         });
+    }
+
+    ngOnDestroy() {
+        // Only clear edit mode if we're not navigating to add-user
+        if (!this.router.url.includes('/planepage/admin/add-users')) {
+            this.userService.clearEditMode();
+        }
     }
 
     filterUsers() {
@@ -43,8 +52,12 @@ export class ManageUsersComponent implements OnInit {
     editUser(user: User) {
         const index = this.users.findIndex(u => u.username === user.username);
         if (index !== -1) {
+            // Set edit mode and wait for it to be set before navigating
             this.userService.setEditMode(index);
-            this.router.navigate(['/planepage/admin/add-users']);
+            // Add a small delay to ensure edit mode is set
+            setTimeout(() => {
+                this.router.navigate(['/planepage/admin/add-users']);
+            }, 0);
         }
     }
 

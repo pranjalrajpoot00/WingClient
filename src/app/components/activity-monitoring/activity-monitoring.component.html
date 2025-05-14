@@ -1,4 +1,21 @@
 <div class="content">
+    <!-- Add search container -->
+    <div class="search-container">
+        <div class="search-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input 
+                type="text" 
+                [(ngModel)]="searchTerm" 
+                (input)="filterActivities()"
+                placeholder="Search user..."
+                class="search-input"
+            >
+        </div>
+    </div>
+
     <div class="table-container">
         <table class="activity-table">
             <thead>
@@ -10,11 +27,17 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let activity of activities">
+                <tr *ngFor="let activity of filteredActivities">
                     <td>{{activity.user}}</td>
                     <td class="role-text">{{activity.role}}</td>
                     <td><a href="#" class="activity-link">{{activity.action}}</a></td>
                     <td class="time-text">{{activity.time}}</td>
+                </tr>
+                <!-- Show message when no activities match the search -->
+                <tr *ngIf="filteredActivities.length === 0">
+                    <td colspan="4" class="no-results">
+                        No activities found matching "{{searchTerm}}"
+                    </td>
                 </tr>
             </tbody>
         </table>
