@@ -1,0 +1,329 @@
+<!-- Breadcrumb Navigation -->
+<div class="breadcrumb">
+    <i class="fas fa-home"></i> <a href="#" (click)="navigateBack()">Home</a> > Project Management
+</div>
+
+<!-- Navigation Tabs -->
+<div class="navigation">
+    <div class="tabs">
+        <a class="tab" [class.active]="activeTab === 'Project Management'" (click)="setActiveTab('Project Management')">Project Management</a>
+        <a class="tab" [class.active]="activeTab === 'Resource Management'" (click)="setActiveTab('Resource Management')">Resource Management</a>
+    </div>
+</div>
+
+<!-- Project Management Tab Content -->
+<div *ngIf="activeTab === 'Project Management'" class="tab-content">
+    <div class="actions">
+        <button class="btn primary" (click)="openTaskModal()">
+            <i class="fas fa-plus"></i> Add Task
+        </button>
+        <button class="btn primary" (click)="openResourceModal()">
+            <i class="fas fa-user-plus"></i> Add Team Member
+        </button>
+    </div>
+
+    <!-- Tasks Table -->
+    <div class="table-container">
+        <table class="tasks-table">
+            <thead>
+                <tr>
+                    <th>Task Name</th>
+                    <th>Description</th>
+                    <th>Planned Start</th>
+                    <th>Planned End</th>
+                    <th>Assignee</th>
+                    <th>Estimated Hours</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let task of tasks">
+                    <td>{{ task.task_name }}</td>
+                    <td>{{ task.description }}</td>
+                    <td>{{ task.planned_start_date | date:'shortDate' }}</td>
+                    <td>{{ task.planned_end_date | date:'shortDate' }}</td>
+                    <td>{{ task.assignee?.full_name }}</td>
+                    <td>{{ task.estimated_hours }}</td>
+                    <td>
+                        <span class="priority-badge" [class]="'priority-' + task.priority.toLowerCase()">
+                            {{ task.priority }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge" [class]="getStatusClass(task.status)">
+                            {{ task.status }}
+                        </span>
+                    </td>
+                    <td class="actions-cell">
+                        <button class="btn icon" (click)="openTaskModal(task)" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn icon" (click)="openCommentModal(task)" title="Comments">
+                            <i class="fas fa-comments"></i>
+                        </button>
+                        <button class="btn icon delete" (click)="deleteTask(task.task_id)" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Resource Management Tab Content -->
+<div *ngIf="activeTab === 'Resource Management'" class="tab-content">
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="loading">
+        <div class="loading-spinner"></div>
+        <p>Loading resource utilization data...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-container" *ngIf="error">
+        <i class="fas fa-exclamation-circle"></i>
+        <p>{{ error }}</p>
+        <button class="btn primary" (click)="loadResourceUtilization()">Retry</button>
+    </div>
+
+    <!-- Resource Utilization Content -->
+    <div class="content" *ngIf="!loading && !error">
+        <div class="header">
+            <h1>Resource Utilization - {{ currentProject?.name }}</h1>
+        </div>
+
+        <!-- Utilization Chart -->
+        <div class="chart-container">
+            <h2>Resource Utilization Overview</h2>
+            <ngx-charts-bar-vertical-2d
+                [view]="chartView"
+                [scheme]="colorScheme"
+                [results]="getChartData()"
+                [gradient]="gradient"
+                [xAxis]="showXAxis"
+                [yAxis]="showYAxis"
+                [legend]="showLegend"
+                [showXAxisLabel]="showXAxisLabel"
+                [showYAxisLabel]="showYAxisLabel"
+                [xAxisLabel]="xAxisLabel"
+                [yAxisLabel]="yAxisLabel">
+            </ngx-charts-bar-vertical-2d>
+        </div>
+
+        <!-- Resource Details -->
+        <div class="resource-details">
+            <!-- Over-utilized Resources -->
+            <div class="resource-section" *ngIf="getOverUtilizedResources().length > 0">
+                <h2>Over-utilized Resources</h2>
+                <div class="resource-cards">
+                    <div class="resource-card warning" *ngFor="let resource of getOverUtilizedResources()">
+                        <h3>{{ resource.name }}</h3>
+                        <p class="role">{{ resource.role }}</p>
+                        <div class="utilization">
+                            <span class="percentage">{{ resource.utilizationPercentage | number:'1.0-1' }}%</span>
+                            <span class="hours">({{ resource.assignedHours }}h / {{ resource.availableHours }}h)</span>
+                        </div>
+                        <div class="tasks">
+                            <h4>Assigned Tasks:</h4>
+                            <ul>
+                                <li *ngFor="let task of resource.tasks">
+                                    {{ task.taskName }} - {{ task.estimatedHours }}h
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Under-utilized Resources -->
+            <div class="resource-section" *ngIf="getUnderUtilizedResources().length > 0">
+                <h2>Under-utilized Resources</h2>
+                <div class="resource-cards">
+                    <div class="resource-card info" *ngFor="let resource of getUnderUtilizedResources()">
+                        <h3>{{ resource.name }}</h3>
+                        <p class="role">{{ resource.role }}</p>
+                        <div class="utilization">
+                            <span class="percentage">{{ resource.utilizationPercentage | number:'1.0-1' }}%</span>
+                            <span class="hours">({{ resource.assignedHours }}h / {{ resource.availableHours }}h)</span>
+                        </div>
+                        <div class="tasks">
+                            <h4>Assigned Tasks:</h4>
+                            <ul>
+                                <li *ngFor="let task of resource.tasks">
+                                    {{ task.taskName }} - {{ task.estimatedHours }}h
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Resources Table -->
+            <div class="resource-section">
+                <h2>All Resources</h2>
+                <div class="table-container">
+                    <table class="resources-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Assigned Hours</th>
+                                <th>Available Hours</th>
+                                <th>Utilization</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let resource of resourceUtilizationData">
+                                <td>{{ resource.name }}</td>
+                                <td>{{ resource.role }}</td>
+                                <td>{{ resource.assignedHours }}</td>
+                                <td>{{ resource.availableHours }}</td>
+                                <td>
+                                    <span class="utilization-badge" 
+                                          [class.warning]="resource.utilizationPercentage > 100"
+                                          [class.info]="resource.utilizationPercentage < 50"
+                                          [class.success]="resource.utilizationPercentage >= 50 && resource.utilizationPercentage <= 100">
+                                        {{ resource.utilizationPercentage | number:'1.0-1' }}%
+                                    </span>
+                                </td>
+                                <td>
+                                    <span *ngIf="resource.utilizationPercentage > 100" class="status-badge warning">
+                                        Over-utilized
+                                    </span>
+                                    <span *ngIf="resource.utilizationPercentage < 50" class="status-badge info">
+                                        Under-utilized
+                                    </span>
+                                    <span *ngIf="resource.utilizationPercentage >= 50 && resource.utilizationPercentage <= 100" 
+                                          class="status-badge success">
+                                        Optimal
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Task Modal -->
+<div class="modal" *ngIf="showTaskModal">
+    <div class="modal-content">
+        <h2>{{ isEditing ? 'Edit Task' : 'Add New Task' }}</h2>
+        <form (ngSubmit)="saveTask()" #taskForm="ngForm">
+            <div class="form-group">
+                <label for="taskName">Task Name</label>
+                <input type="text" id="taskName" name="task_name" [(ngModel)]="selectedTask!.task_name" required>
+            </div>
+            <div class="form-group">
+                <label for="taskDescription">Description</label>
+                <textarea id="taskDescription" name="description" [(ngModel)]="selectedTask!.description" required></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="plannedStartDate">Planned Start Date</label>
+                    <input type="date" id="plannedStartDate" name="planned_start_date" [(ngModel)]="selectedTask!.planned_start_date" required>
+                </div>
+                <div class="form-group">
+                    <label for="plannedEndDate">Planned End Date</label>
+                    <input type="date" id="plannedEndDate" name="planned_end_date" [(ngModel)]="selectedTask!.planned_end_date" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="taskAssignee">Assignee</label>
+                    <select id="taskAssignee" name="assignee_id" [(ngModel)]="selectedTask!.assignee_id" required>
+                        <option value="">Select Team Member</option>
+                        <option *ngFor="let member of availableAssignees" [value]="member.user_id">
+                            {{ member.full_name }} ({{ member.role }})
+                        </option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="taskPriority">Priority</label>
+                    <select id="taskPriority" name="priority" [(ngModel)]="selectedTask!.priority" required>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="estimatedHours">Estimated Hours</label>
+                    <input type="number" id="estimatedHours" name="estimated_hours" [(ngModel)]="selectedTask!.estimated_hours" required min="0">
+                </div>
+                <div class="form-group">
+                    <label for="taskStatus">Status</label>
+                    <select id="taskStatus" name="status" [(ngModel)]="selectedTask!.status" required>
+                        <option value="Not Started">Not Started</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn secondary" (click)="closeTaskModal()">Cancel</button>
+                <button type="submit" class="btn primary" [disabled]="!taskForm.form.valid">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Resource Modal -->
+<div class="modal" *ngIf="showResourceModal">
+    <div class="modal-content">
+        <h2>Add Team Member</h2>
+        <div class="available-users" *ngIf="availableAssignees.length > 0">
+            <h3>Available Team Members</h3>
+            <div class="users-list">
+                <div class="user-card" *ngFor="let user of availableAssignees">
+                    <div class="user-info">
+                        <h4>{{ user.full_name }}</h4>
+                        <p class="role">{{ user.role }}</p>
+                        <p class="eid">Employee ID: {{ user.user_id }}</p>
+                    </div>
+                    <button class="btn primary" (click)="selectUser(user)">
+                        <i class="fas fa-plus"></i> Add to Team
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="no-users" *ngIf="availableAssignees.length === 0">
+            <p>No available team members found.</p>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn secondary" (click)="closeResourceModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Comment Modal -->
+<div class="modal" *ngIf="showCommentModal">
+    <div class="modal-content">
+        <h2>Add Comment</h2>
+        <div class="comments-list" *ngIf="selectedTask && selectedTask.comments.length">
+            <div class="comment" *ngFor="let comment of selectedTask.comments">
+                <div class="comment-header">
+                    <span class="comment-author">{{ comment.author }}</span>
+                    <span class="comment-date">{{ comment.date | date:'short' }}</span>
+                </div>
+                <div class="comment-text">{{ comment.text }}</div>
+            </div>
+        </div>
+        <form (ngSubmit)="saveComment()" #commentForm="ngForm">
+            <div class="form-group">
+                <label for="commentText">New Comment</label>
+                <textarea id="commentText" name="text" [(ngModel)]="newComment.text" required></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn secondary" (click)="closeCommentModal()">Close</button>
+                <button type="submit" class="btn primary" [disabled]="!commentForm.form.valid">Add Comment</button>
+            </div>
+        </form>
+    </div>
+</div> 

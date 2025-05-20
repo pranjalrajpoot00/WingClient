@@ -1,0 +1,109 @@
+<div class="team-members-container">
+    <!-- Header Section -->
+    <div class="header">
+        <div class="breadcrumb">
+            <a (click)="navigateToDashboard()" style="cursor: pointer;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="home-icon">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Dashboard
+            </a>
+            <span>&gt;</span>
+            <span>Team Members</span>
+        </div>
+
+        <div class="welcome-section">
+            <h1>Team Members</h1>
+            <p class="subtitle">Manage your team members and their skills</p>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="loading">
+        <div class="loading-spinner"></div>
+        <p>Loading team members...</p>
+    </div>
+
+    <!-- Team Members Table -->
+    <div class="team-members-table-container" *ngIf="!loading">
+        <table class="team-members-table">
+            <thead>
+                <tr>
+                    <th>Employee Name</th>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Skills</th>
+                    <th>Current Projects</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let member of teamMembers">
+                    <td>{{ member.employeeName }}</td>
+                    <td>{{ member.username }}</td>
+                    <td>{{ member.role | titlecase }}</td>
+                    <td>
+                        <div class="skills-container">
+                            <div *ngFor="let skill of member.skills" class="skill-badge">
+                                {{ skill }}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="projects-list">
+                            <span *ngFor="let project of member.projects" class="project-badge">
+                                {{ project.projectName }}
+                                <small>({{ project.role }})</small>
+                            </span>
+                        </div>
+                    </td>
+                    <td>
+                        <button class="action-btn view-btn" (click)="openSkillModal(member)">
+                            <i class="fas fa-edit"></i> Manage Skills
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Skill Management Modal -->
+    <div class="modal" *ngIf="showSkillModal && selectedMember">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Manage Skills - {{ selectedMember.employeeName }}</h2>
+                <button class="close-button" (click)="closeSkillModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="current-skills">
+                    <h3>Current Skills</h3>
+                    <div class="skills-grid">
+                        <div *ngFor="let skill of selectedMember.skills" class="skill-item">
+                            <div class="skill-badge-modal">
+                                <span class="skill-text">{{ skill }}</span>
+                                <span class="remove-skill-icon" (click)="removeSkill(selectedMember, skill)" title="Remove skill">×</span>
+                            </div>
+                        </div>
+                        <div *ngIf="selectedMember.skills.length === 0" class="no-skills-message">
+                            No skills added yet
+                        </div>
+                    </div>
+                </div>
+                <div class="add-skill-section">
+                    <h3>Add New Skill</h3>
+                    <div class="add-skill-form">
+                        <input type="text" 
+                               [(ngModel)]="newSkill" 
+                               placeholder="Enter skill name"
+                               (keyup.enter)="addSkill(selectedMember)"
+                               class="skill-input">
+                        <button class="add-btn" (click)="addSkill(selectedMember)">
+                            <i class="fas fa-plus"></i> Add Skill
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

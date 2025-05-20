@@ -1,0 +1,108 @@
+<div class="profile-container">
+    <div class="header">
+        <div class="breadcrumb">
+            <a (click)="navigateToDashboard()" style="cursor: pointer;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="home-icon">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Dashboard
+            </a>
+            <span>&gt;</span>
+            <span>My Profile</span>
+        </div>
+
+        <div class="welcome-section">
+            <h1>My Profile</h1>
+            <p class="subtitle">View and update your profile information</p>
+        </div>
+    </div>
+
+    <div class="profile-content" *ngIf="profile">
+        <!-- Success and Error Messages -->
+        <div class="message success" *ngIf="successMessage">{{ successMessage }}</div>
+        <div class="message error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+        <!-- Profile Information -->
+        <div class="profile-card">
+            <div class="profile-header">
+                <h2>Profile Information</h2>
+                <button class="edit-button" *ngIf="!isEditing" (click)="startEditing()">
+                    Edit Profile
+                </button>
+            </div>
+
+            <div class="profile-details">
+                <!-- Read-only Information -->
+                <div class="info-group">
+                    <label>Employee Name</label>
+                    <p>{{ profile.name }}</p>
+                </div>
+
+                <div class="info-group">
+                    <label>Username</label>
+                    <p>{{ profile.username }}</p>
+                </div>
+
+                <div class="info-group">
+                    <label>Role</label>
+                    <p>{{ profile.role | titlecase }}</p>
+                </div>
+
+                <div class="info-group">
+                    <label>Department</label>
+                    <p>{{ profile.department || 'Not set' }}</p>
+                </div>
+
+                <!-- Editable Information -->
+                <div class="info-group">
+                    <label>Skillset</label>
+                    <div *ngIf="!isEditing">
+                        <p>{{ profile.skillset }}</p>
+                    </div>
+                    <div *ngIf="isEditing">
+                        <input 
+                            type="text" 
+                            [(ngModel)]="editedProfile.skillset" 
+                            placeholder="Enter your skills (comma-separated)"
+                            class="form-input">
+                    </div>
+                </div>
+
+                <div class="info-group">
+                    <label>Email</label>
+                    <div *ngIf="!isEditing">
+                        <p>{{ profile.email || 'Not set' }}</p>
+                    </div>
+                    <div *ngIf="isEditing">
+                        <input 
+                            type="email" 
+                            [(ngModel)]="editedProfile.email" 
+                            placeholder="Enter your email"
+                            class="form-input">
+                    </div>
+                </div>
+
+                <div class="info-group">
+                    <label>Phone Number</label>
+                    <div *ngIf="!isEditing">
+                        <p>{{ profile.phoneNumber || 'Not set' }}</p>
+                    </div>
+                    <div *ngIf="isEditing">
+                        <input 
+                            type="tel" 
+                            [(ngModel)]="editedProfile.phoneNumber" 
+                            placeholder="Enter your phone number"
+                            class="form-input">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Mode Actions -->
+            <div class="profile-actions" *ngIf="isEditing">
+                <button class="cancel-button" (click)="cancelEditing()">Cancel</button>
+                <button class="save-button" (click)="saveProfile()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div> 

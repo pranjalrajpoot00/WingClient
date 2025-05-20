@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -13,30 +15,42 @@ export class LoginComponent {
   username: string = '';
   password: string = '';
   showPassword: boolean = false;
-  constructor(private router: Router) {}
+
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
+
   togglePassword() {
     this.showPassword = !this.showPassword;
   }
 
   login() {
     if (this.username && this.password) {
-      // In a real application, you would handle authentication here
-      console.log('Login credentials submitted:', {
-        username: this.username,
-        password: this.password
-      });
-      if(this.username == "admin00" && this.password == "Admin@123")
-        this.router.navigate(['/manage-users']);
-      else if(this.username == "pm00" && this.password == "PM@123")
-        this.router.navigate(['/dashboard']);
-      else
-      alert('Invalid Credentials.');
-    } 
-    else {
+      if (this.authService.login(this.username, this.password)) {
+        // Navigate based on role
+        const user = this.authService.getCurrentUser();
+        switch (user?.role) {
+          case 'admin':
+            this.router.navigate(['/planepage/admin']);
+            break;
+          case 'manager':
+            this.router.navigate(['/planepage/manager-dashboard']);
+            break;
+          case 'teamlead':
+            this.router.navigate(['/planepage/teamlead-dashboard']);
+            break;
+          case 'developer':
+            this.router.navigate(['/planepage/developer-dashboard']);
+            break;
+          default:
+            this.router.navigate(['/planepage']);
+        }
+      } else {
+        alert('Invalid Credentials.');
+      }
+    } else {
       alert('Please enter both username and password.');
     }
-  }
-  logout(): void {
-    console.log('Logging out...');
   }
 }

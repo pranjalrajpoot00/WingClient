@@ -1,0 +1,138 @@
+<!-- Breadcrumb Navigation -->
+<div class="breadcrumb">
+    <i class="fas fa-home"></i> <a href="#" (click)="navigateBack()">Home</a> > Resource Utilization
+</div>
+
+<!-- Loading State -->
+<div class="loading-container" *ngIf="loading">
+    <div class="loading-spinner"></div>
+    <p>Loading resource utilization data...</p>
+</div>
+
+<!-- Error State -->
+<div class="error-container" *ngIf="error">
+    <i class="fas fa-exclamation-circle"></i>
+    <p>{{ error }}</p>
+    <button class="btn primary" (click)="loadResourceUtilization()">Retry</button>
+</div>
+
+<!-- Main Content -->
+<div class="content" *ngIf="!loading && !error">
+    <div class="header">
+        <h1>Resource Utilization - {{ currentProject?.name }}</h1>
+    </div>
+
+    <!-- Utilization Chart -->
+    <div class="chart-container">
+        <h2>Resource Utilization Overview</h2>
+        <ngx-charts-bar-vertical-2d
+            [view]="view"
+            [scheme]="colorScheme"
+            [results]="getChartData()"
+            [gradient]="gradient"
+            [xAxis]="showXAxis"
+            [yAxis]="showYAxis"
+            [legend]="showLegend"
+            [showXAxisLabel]="showXAxisLabel"
+            [showYAxisLabel]="showYAxisLabel"
+            [xAxisLabel]="xAxisLabel"
+            [yAxisLabel]="yAxisLabel">
+        </ngx-charts-bar-vertical-2d>
+    </div>
+
+    <!-- Resource Details -->
+    <div class="resource-details">
+        <!-- Over-utilized Resources -->
+        <div class="resource-section" *ngIf="getOverUtilizedResources().length > 0">
+            <h2>Over-utilized Resources</h2>
+            <div class="resource-cards">
+                <div class="resource-card warning" *ngFor="let resource of getOverUtilizedResources()">
+                    <h3>{{ resource.name }}</h3>
+                    <p class="role">{{ resource.role }}</p>
+                    <div class="utilization">
+                        <span class="percentage">{{ resource.utilizationPercentage | number:'1.0-1' }}%</span>
+                        <span class="hours">({{ resource.assignedHours }}h / {{ resource.availableHours }}h)</span>
+                    </div>
+                    <div class="tasks">
+                        <h4>Assigned Tasks:</h4>
+                        <ul>
+                            <li *ngFor="let task of resource.tasks">
+                                {{ task.taskName }} - {{ task.estimatedHours }}h
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Under-utilized Resources -->
+        <div class="resource-section" *ngIf="getUnderUtilizedResources().length > 0">
+            <h2>Under-utilized Resources</h2>
+            <div class="resource-cards">
+                <div class="resource-card info" *ngFor="let resource of getUnderUtilizedResources()">
+                    <h3>{{ resource.name }}</h3>
+                    <p class="role">{{ resource.role }}</p>
+                    <div class="utilization">
+                        <span class="percentage">{{ resource.utilizationPercentage | number:'1.0-1' }}%</span>
+                        <span class="hours">({{ resource.assignedHours }}h / {{ resource.availableHours }}h)</span>
+                    </div>
+                    <div class="tasks">
+                        <h4>Assigned Tasks:</h4>
+                        <ul>
+                            <li *ngFor="let task of resource.tasks">
+                                {{ task.taskName }} - {{ task.estimatedHours }}h
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Resources -->
+        <div class="resource-section">
+            <h2>All Resources</h2>
+            <div class="table-container">
+                <table class="resources-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Assigned Hours</th>
+                            <th>Available Hours</th>
+                            <th>Utilization</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let resource of resourceData">
+                            <td>{{ resource.name }}</td>
+                            <td>{{ resource.role }}</td>
+                            <td>{{ resource.assignedHours }}</td>
+                            <td>{{ resource.availableHours }}</td>
+                            <td>
+                                <span class="utilization-badge" 
+                                      [class.warning]="resource.utilizationPercentage > 100"
+                                      [class.info]="resource.utilizationPercentage < 50"
+                                      [class.success]="resource.utilizationPercentage >= 50 && resource.utilizationPercentage <= 100">
+                                    {{ resource.utilizationPercentage | number:'1.0-1' }}%
+                                </span>
+                            </td>
+                            <td>
+                                <span *ngIf="resource.utilizationPercentage > 100" class="status-badge warning">
+                                    Over-utilized
+                                </span>
+                                <span *ngIf="resource.utilizationPercentage < 50" class="status-badge info">
+                                    Under-utilized
+                                </span>
+                                <span *ngIf="resource.utilizationPercentage >= 50 && resource.utilizationPercentage <= 100" 
+                                      class="status-badge success">
+                                    Optimal
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div> 

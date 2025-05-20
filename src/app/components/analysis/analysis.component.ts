@@ -1,4 +1,3 @@
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -21,6 +20,20 @@ interface PieChartPaths {
   overdue: string;
 }
 
+interface Project {
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  teamMembers: TeamMember[];
+}
+
+interface TeamMember {
+  name: string;
+  role: string;
+}
+
 @Component({
   selector: 'app-analysis',
   standalone: true,
@@ -29,6 +42,7 @@ interface PieChartPaths {
   styleUrl: './analysis.component.css'
 })
 export class AnalysisComponent implements OnInit {
+  project: Project | null = null;
   totalTasks: number = 30;
   taskStats: TaskStats = {
     notStarted: 4,
@@ -47,9 +61,20 @@ export class AnalysisComponent implements OnInit {
     overdue: ''
   };
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) {
+    // Get project data from navigation state
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      this.project = (navigation.extras.state as any).project;
+    }
+  }
 
   ngOnInit(): void {
+    if (!this.project) {
+      // If no project data, redirect back to manager dashboard
+      this.router.navigate(['/planepage/manager-dashboard']);
+      return;
+    }
     this.calculatePieChartPaths();
   }
 
@@ -106,10 +131,11 @@ export class AnalysisComponent implements OnInit {
     return `M${center.x},${center.y} L${startX},${startY} A${radius},${radius} 0 ${largeArcFlag},1 ${endX},${endY} Z`;
   }
 
+  navigateToDashboard(): void {
+    this.router.navigate(['/planepage/manager-dashboard']);
+  }
+
   logout(): void {
-    // Implement logout logic here
-    console.log('Logging out...');
-    // Example navigation after logout:
-    // this.router.navigate(['/login']);
+    this.router.navigate(['/login']);
   }
 }

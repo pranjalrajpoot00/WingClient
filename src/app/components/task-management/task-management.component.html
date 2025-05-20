@@ -1,0 +1,84 @@
+<div class="task-management-container">
+    <div class="header">
+        <div class="breadcrumb">
+            <a (click)="navigateToDashboard()" style="cursor: pointer;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="home-icon">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Dashboard
+            </a>
+            <span>&gt;</span>
+            <span>{{ isDeveloper ? 'My Tasks' : 'Task Management' }}</span>
+        </div>
+
+        <div class="welcome-section">
+            <h1>{{ isDeveloper ? 'My Tasks' : 'Task Management' }}</h1>
+            <p class="subtitle">{{ isDeveloper ? 'View and update your assigned tasks' : 'Manage and update task statuses' }}</p>
+        </div>
+    </div>
+
+    <!-- Tasks List -->
+    <div class="tasks-list">
+        <div class="tasks-table-container">
+            <table class="tasks-table">
+                <thead>
+                    <tr>
+                        <th>Task ID</th>
+                        <th>Description</th>
+                        <th>Project</th>
+                        <th>Status</th>
+                        <th>Assigned To</th>
+                        <th>Assignment Date</th>
+                        <th>Deadline</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let task of tasks">
+                        <td>{{ task.task_id }}</td>
+                        <td>{{ task.description }}</td>
+                        <td>{{ task.project_name }}</td>
+                        <td>
+                            <span class="status-badge" [ngClass]="getStatusClass(task.status)">
+                                {{ task.status }}
+                            </span>
+                        </td>
+                        <td>{{ task.assigned_to }}</td>
+                        <td>{{ task.assignment_date }}</td>
+                        <td>{{ task.deadline }}</td>
+                        <td>
+                            <button class="action-button" (click)="openStatusModal(task)">
+                                Update Status
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Status Update Modal -->
+    <div class="modal" *ngIf="showStatusModal && selectedTask">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Update Task Status</h2>
+                <button class="close-button" (click)="closeStatusModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Task:</strong> {{ selectedTask.description }}</p>
+                <p><strong>Current Status:</strong> {{ selectedTask.status }}</p>
+                <div class="status-options">
+                    <button 
+                        *ngFor="let status of statusOptions"
+                        class="status-option"
+                        [attr.data-status]="status.toLowerCase().replace(' ', '-')"
+                        [class.selected]="status === selectedTask.status"
+                        (click)="updateTaskStatus(selectedTask, status)">
+                        {{ status }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

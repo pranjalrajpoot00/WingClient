@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DataService, Project, User } from '../../services/data.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-project-form',
@@ -19,12 +20,14 @@ export class ProjectFormComponent implements OnInit {
   priorities = ['Low', 'Medium', 'High'];
   isEditing = false;
   projectId: number | null = null;
+  currentManagerId: number = 0;
 
   constructor(
     private dataService: DataService,
     private router: Router,
     private route: ActivatedRoute,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private authService: AuthService
   ) {
     this.projectForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
@@ -40,11 +43,14 @@ export class ProjectFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Get current user from localStorage
-    const currentUser = localStorage.getItem('currentUser');
+    // Get current user from auth service
+    const currentUser = this.authService.getCurrentUser();
     if (currentUser) {
-      const username = JSON.parse(currentUser).username;
-      this.projectForm.patchValue({ createdBy: username });
+      this.currentManagerId = currentUser.id;
+      this.projectForm.patchValue({ createdBy: currentUser.username });
+    } else {
+      this.router.navigate(['/login']);
+      return;
     }
 
     // Get available users for team members
@@ -52,21 +58,26 @@ export class ProjectFormComponent implements OnInit {
       this.availableUsers = users;
     });
 
-    // Check if we're editing an existing project
-    this.route.params.subscribe(params => {
-      if (params['id']) {
+    // Check if we're in edit mode from navigation state
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      const state = navigation.extras.state as { mode: string; project: Project };
+      if (state.mode === 'edit' && state.project) {
         this.isEditing = true;
-        this.projectId = +params['id'];
-        const project = this.dataService.getProjectById(this.projectId);
-        if (project) {
+        this.projectId = state.project.id;
           this.projectForm.patchValue({
-            ...project,
-            startDate: this.formatDate(project.startDate),
-            endDate: this.formatDate(project.endDate)
+          name: state.project.name,
+          description: state.project.description,
+          startDate: this.formatDate(new Date(state.project.startDate)),
+          endDate: this.formatDate(new Date(state.project.endDate)),
+          status: state.project.status,
+          priority: state.project.priority || 'Medium',
+          department: state.project.department || '',
+          budget: state.project.budget || 0,
+          teamMembers: state.project.teamMembers.map(member => member.name)
           });
         }
       }
-    });
   }
 
   onSubmit() {
@@ -74,9 +85,10 @@ export class ProjectFormComponent implements OnInit {
       const formValue = this.projectForm.value;
       const project: Omit<Project, 'id'> = {
         ...formValue,
-        startDate: new Date(formValue.startDate),
-        endDate: new Date(formValue.endDate),
-        createdBy: this.projectForm.get('createdBy')?.value
+        startDate: new Date(formValue.startDate).toISOString(),
+        endDate: new Date(formValue.endDate).toISOString(),
+        createdBy: this.projectForm.get('createdBy')?.value,
+        projectManager: this.currentManagerId
       };
 
       if (this.isEditing && this.projectId) {
@@ -88,7 +100,7 @@ export class ProjectFormComponent implements OnInit {
       this.showSuccessModal = true;
       setTimeout(() => {
         this.showSuccessModal = false;
-        this.router.navigate(['/your-project']);
+        this.router.navigate(['/planepage/select-project']);
       }, 2000);
     } else {
       this.markFormGroupTouched(this.projectForm);

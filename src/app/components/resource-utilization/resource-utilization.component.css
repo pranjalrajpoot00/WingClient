@@ -1,0 +1,260 @@
+/* Breadcrumb */
+.breadcrumb {
+    padding: 10px 20px;
+    color: #666;
+    font-size: 14px;
+}
+
+.breadcrumb a {
+    color: #007bff;
+    text-decoration: none;
+    margin: 0 5px;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+/* Loading State */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Error State */
+.error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+    color: #dc3545;
+}
+
+.error-container i {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+/* Content */
+.content {
+    padding: 20px;
+}
+
+.header {
+    margin-bottom: 24px;
+}
+
+.header h1 {
+    margin: 0;
+    color: #212529;
+    font-size: 24px;
+}
+
+/* Chart Container */
+.chart-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.chart-container h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #495057;
+    font-size: 18px;
+}
+
+/* Resource Details */
+.resource-details {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.resource-section {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.resource-section h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #495057;
+    font-size: 18px;
+}
+
+/* Resource Cards */
+.resource-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.resource-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+    border-left: 4px solid;
+}
+
+.resource-card.warning {
+    border-left-color: #ffc107;
+}
+
+.resource-card.info {
+    border-left-color: #17a2b8;
+}
+
+.resource-card h3 {
+    margin: 0 0 8px 0;
+    color: #212529;
+}
+
+.resource-card .role {
+    color: #6c757d;
+    margin: 0 0 12px 0;
+}
+
+.resource-card .utilization {
+    margin-bottom: 16px;
+}
+
+.resource-card .percentage {
+    font-size: 24px;
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+.resource-card .hours {
+    color: #6c757d;
+}
+
+.resource-card .tasks {
+    border-top: 1px solid #dee2e6;
+    padding-top: 12px;
+}
+
+.resource-card .tasks h4 {
+    margin: 0 0 8px 0;
+    color: #495057;
+}
+
+.resource-card .tasks ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #6c757d;
+}
+
+/* Table */
+.table-container {
+    overflow-x: auto;
+}
+
+.resources-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.resources-table th,
+.resources-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.resources-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+}
+
+.resources-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Badges */
+.utilization-badge,
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.utilization-badge.warning,
+.status-badge.warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.utilization-badge.info,
+.status-badge.info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.utilization-badge.success,
+.status-badge.success {
+    background-color: #28a745;
+    color: white;
+}
+
+/* Buttons */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.btn.primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn.primary:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .view {
+        width: 100%;
+        height: 300px;
+    }
+
+    .resource-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .table-container {
+        margin: 0 -20px;
+    }
+} 

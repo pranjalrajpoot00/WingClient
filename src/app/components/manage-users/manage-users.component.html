@@ -1,63 +1,46 @@
-<!-- Header -->
-<header class="header">
-    <div class="logo-container">
-        <img src="/logo.png" alt="Pratt & Whitney Logo" class="logo">
-    </div>
-    <div class="user-info">
-        <div class="user-avatar">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e3464" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-        </div>
-        <div class="user-details">
-            <div class="user-name">Kritika</div>
-            <div class="user-role">Admin</div>
-        </div>
-    </div>
-</header>
-
-<!-- Breadcrumb -->
-<div class="breadcrumb">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-        <polyline points="9 22 9 12 15 12 15 22"></polyline>
-    </svg>
-    <a href="#" (click)="navigateTo('home')">Home</a> &gt; Manage users
-</div>
-
-<!-- Navigation Tabs -->
-<div class="nav-container">
-    <div class="nav-tabs">
-        <div class="nav-tab" (click)="switchTab('add-users')">Add new user</div>
-        <div class="nav-tab" (click)="switchTab('activity-monitoring')">Activity monitoring</div>
-        <div class="nav-tab active" (click)="switchTab('manage-users')">Manage users</div>
-    </div>
-</div>
-
-<!-- Main Content -->
+<!-- Add search container above the table -->
 <div class="content">
+    <div class="search-container">
+        <div class="search-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input 
+                type="text" 
+                [(ngModel)]="searchTerm" 
+                (input)="filterUsers()"
+                placeholder="Search by username..."
+                class="search-input"
+            >
+        </div>
+    </div>
+
     <table class="user-table">
         <thead>
             <tr>
                 <th>User</th>
+                <th>Username</th>
                 <th>Role</th>
+                <th>Reports To</th>
                 <th>Manage</th>
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let user of users">
+            <tr *ngFor="let user of filteredUsers">
                 <td>{{user.name}}</td>
+                <td>{{user.username}}</td>
                 <td>{{user.role}}</td>
+                <td>{{user.reportsTo || '-'}}</td>
                 <td>
                     <div class="actions">
-                        <button class="action-btn edit-btn" (click)="editUser(user)">
+                        <button class="action-btn edit-btn" (click)="editUser(user)" title="Edit User">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                             </svg>
                         </button>
-                        <button class="action-btn delete-btn" (click)="deleteUser(user)">
+                        <button class="action-btn delete-btn" (click)="deleteUser(user)" title="Delete User">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="3 6 5 6 21 6"></polyline>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -66,20 +49,13 @@
                     </div>
                 </td>
             </tr>
+            <!-- Show message when no users match the search -->
+            <tr *ngIf="filteredUsers.length === 0">
+                <td colspan="5" class="no-results">
+                    No users found matching "{{searchTerm}}"
+                </td>
+            </tr>
         </tbody>
     </table>
 </div>
 
-<!-- Footer -->
-<footer class="footer">
-    <button class="logout-btn" (click)="logout()">
-        Log out
-        <span class="logout-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
-            </svg>
-        </span>
-    </button>
-</footer>
