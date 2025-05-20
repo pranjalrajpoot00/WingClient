@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -13,25 +14,26 @@ interface Task {
   created_by: string;
   repo_url_branch: string;
   project_name: string;
-  completion_percentage: number;
   days_remaining: number;
 }
 
 @Component({
   selector: 'app-task-analysis',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './task-analysis.component.html',
   styleUrl: './task-analysis.component.css'
 })
 export class TaskAnalysisComponent implements OnInit {
   tasks: Task[] = [];
+  filteredTasks: Task[] = [];
   username: string = '';
   totalTasks: number = 0;
   completedTasks: number = 0;
   inProgressTasks: number = 0;
   overdueTasks: number = 0;
-  averageCompletion: number = 0;
+  selectedStatus: string = 'all';
+  sortDirection: 'asc' | 'desc' = 'asc';
 
   constructor(
     private router: Router,
@@ -62,7 +64,6 @@ export class TaskAnalysisComponent implements OnInit {
         created_by: 'Manager',
         repo_url_branch: 'feature/auth',
         project_name: 'Project Alpha',
-        completion_percentage: 75,
         days_remaining: 2
       },
       {
@@ -75,7 +76,6 @@ export class TaskAnalysisComponent implements OnInit {
         created_by: 'Manager',
         repo_url_branch: 'feature/db-design',
         project_name: 'Project Alpha',
-        completion_percentage: 100,
         days_remaining: -1
       },
       {
@@ -88,11 +88,11 @@ export class TaskAnalysisComponent implements OnInit {
         created_by: 'Team Lead',
         repo_url_branch: 'feature/api',
         project_name: 'Project Beta',
-        completion_percentage: 60,
         days_remaining: -5
       }
     ];
 
+    this.filteredTasks = [...this.tasks];
     this.calculateStatistics();
   }
 
@@ -101,19 +101,28 @@ export class TaskAnalysisComponent implements OnInit {
     this.completedTasks = this.tasks.filter(task => task.status === 'Completed').length;
     this.inProgressTasks = this.tasks.filter(task => task.status === 'In Progress').length;
     this.overdueTasks = this.tasks.filter(task => task.status === 'Overdue').length;
-    
-    const totalCompletion = this.tasks.reduce((sum, task) => sum + task.completion_percentage, 0);
-    this.averageCompletion = Math.round(totalCompletion / this.totalTasks);
+  }
+
+  filterTasks() {
+    if (this.selectedStatus === 'all') {
+      this.filteredTasks = [...this.tasks];
+    } else {
+      this.filteredTasks = this.tasks.filter(task => task.status === this.selectedStatus);
+    }
+    this.sortByDeadline(); // Maintain sort order after filtering
+  }
+
+  sortByDeadline() {
+    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    this.filteredTasks.sort((a, b) => {
+      const dateA = new Date(a.deadline).getTime();
+      const dateB = new Date(b.deadline).getTime();
+      return this.sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
+    });
   }
 
   getStatusClass(status: string): string {
     return 'status-' + status.toLowerCase().replace(/\s+/g, '-');
-  }
-
-  getCompletionClass(percentage: number): string {
-    if (percentage >= 90) return 'completion-high';
-    if (percentage >= 60) return 'completion-medium';
-    return 'completion-low';
   }
 
   navigateToDashboard() {

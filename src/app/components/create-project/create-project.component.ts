@@ -3,28 +3,21 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, NgForm } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-
-interface TeamMember {
-  name: string;
-  role: string;
-}
+import { DataService, User } from '../../services/data.service';
 
 interface Project {
-  id: number;
-  name: string;
-  description: string;
-  startDate: string;
-  endDate: string;
+  projectId: number;
+  projectName: string;
+  manager: number;
   status: string;
-  projectManager: number;
-  teamMembers: TeamMember[];
-}
-
-interface Resource {
-  name: string;
-  eid: string;
-  role: string;
-  hours: number;
+  description: string;
+  jiraLink: string | null;
+  startDate: Date;
+  endDate: Date;
+  priority: string;
+  createDate: Date;
+  department: string;
+  teamMembers: User[];
 }
 
 @Component({
@@ -38,196 +31,182 @@ export class CreateProjectComponent implements OnInit {
   @ViewChild('projectFormElement') projectFormElement!: NgForm;
   projectForm: FormGroup;
   showModal: boolean = false;
-  availableMembers: Resource[] = [];
-  selectedMembers: TeamMember[] = [];
+  availableMembers: User[] = [];
+  selectedMembers: User[] = [];
   isEditing: boolean = false;
   projectId: number | null = null;
-  currentManagerId: number = 0;
+  currentUser: User | null = null;
+  isJiraLocked: boolean = true;
+  fromDashboard: boolean = false;
   
+  readonly projectStatuses = [
+    'Initiation',
+    'Planning',
+    'Execution',
+    'Monitoring and Control',
+    'Closure'
+  ];
+
+  readonly priorities = ['High', 'Medium', 'Low'];
+
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
-    private authService: AuthService
+    private authService: AuthService,
+    private dataService: DataService
   ) {
     this.projectForm = this.fb.group({
-      projectName: ['', [Validators.required, Validators.minLength(3)]],
-      description: ['', [Validators.required, Validators.minLength(10)]],
+      projectName: ['', [Validators.required, Validators.maxLength(20)]],
+      description: ['', [Validators.required, Validators.maxLength(200)]],
       startDate: ['', Validators.required],
-      endDate: ['', Validators.required]
+      endDate: ['', Validators.required],
+      priority: ['Medium', Validators.required],
+      jiraLink: [{ value: '', disabled: true }, [Validators.maxLength(200)]]
     });
 
     // Get navigation state from history
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
-      const state = navigation.extras.state as { mode: string; project: Project };
+      const state = navigation.extras.state as { mode: string; project: any; fromDashboard?: boolean };
       if (state.mode === 'edit' && state.project) {
-        console.log('Edit mode detected with project:', state.project);
         this.isEditing = true;
-        this.projectId = state.project.id;
+        this.projectId = state.project.project_id;
         this.initializeFormWithProject(state.project);
       }
+      // Store if navigation came from dashboard
+      this.fromDashboard = state.fromDashboard || false;
     }
   }
 
   ngOnInit(): void {
-    // Get current user
-    const currentUser = this.authService.getCurrentUser();
-    if (currentUser) {
-      this.currentManagerId = currentUser.id;
-    } else {
+    // Get current user from auth service and then get full user details from data service
+    const authUser = this.authService.getCurrentUser();
+    if (!authUser) {
       this.router.navigate(['/login']);
       return;
     }
 
-    // Load available members
-    this.loadAvailableMembers();
+    // Get full user details from data service
+    this.dataService.getUsers().subscribe(users => {
+      this.currentUser = users.find(u => u.id === authUser.id) || null;
+      if (this.currentUser) {
+        // Load available members (users who report to this manager)
+        this.loadAvailableMembers();
+      } else {
+        this.router.navigate(['/login']);
+        return;
+      }
+    });
 
-    // If we're in edit mode but form is not initialized (e.g., page refresh),
-    // try to get project data from localStorage
+    // If we're in edit mode but form is not initialized, try to get project data
     if (this.isEditing && this.projectId && !this.projectForm.get('projectName')?.value) {
       const existingProjects = JSON.parse(localStorage.getItem('projects') || '[]');
-      const project = existingProjects.find((p: Project) => p.id === this.projectId);
+      const project = existingProjects.find((p: any) => p.project_id === this.projectId);
       if (project) {
         this.initializeFormWithProject(project);
       }
     }
   }
 
-  private initializeFormWithProject(project: Project): void {
+  private initializeFormWithProject(project: any): void {
     this.projectForm.patchValue({
-      projectName: project.name,
+      projectName: project.project_name,
       description: project.description,
-      startDate: this.formatDate(new Date(project.startDate)),
-      endDate: this.formatDate(new Date(project.endDate))
+      startDate: this.formatDate(new Date(project.start_date)),
+      endDate: this.formatDate(new Date(project.end_date)),
+      priority: project.priority,
+      jiraLink: project.jira_link
     });
-    this.selectedMembers = [...project.teamMembers];
+    
+    // Load team members if available
+    if (project.team?.team_members) {
+      this.selectedMembers = project.team.team_members;
+    }
+    
+    this.isJiraLocked = !project.jira_link;
   }
 
   loadAvailableMembers(): void {
-    // Load members from resources component
-    this.availableMembers = [
-      {
-        name: 'Sagar',
-        eid: 'E40096601',
-        role: 'PM',
-        hours: 80
-      },
-      {
-        name: 'Tejas',
-        eid: 'E40096602',
-        role: 'Lead',
-        hours: 100
-      },
-      {
-        name: 'Kritika',
-        eid: 'E40096603',
-        role: 'Developer',
-        hours: 30
-      },
-      {
-        name: 'Tejaswini',
-        eid: 'E40096604',
-        role: 'Developer',
-        hours: 40
-      },
-      {
-        name: 'Thayib',
-        eid: 'E40096605',
-        role: 'Developer',
-        hours: 60
-      },
-      {
-        name: 'Pranjal',
-        eid: 'E40096606',
-        role: 'Developer',
-        hours: 30
-      }
-    ];
+    // Load all users from data service
+    this.dataService.getUsers().subscribe(users => {
+      // Filter users who report to the current manager
+      this.availableMembers = users.filter(user => 
+        user.role === 'developer' && // Assuming developers report to managers
+        user.department === this.currentUser?.department // Same department
+      );
+    });
   }
 
-  addMember(memberName: string): void {
-    if (!memberName) return;
-    
-    const member = this.availableMembers.find(m => m.name === memberName);
-    if (member && !this.selectedMembers.some(m => m.name === member.name)) {
-      this.selectedMembers.push({
-        name: member.name,
-        role: member.role
-      });
+  toggleJiraLock(): void {
+    this.isJiraLocked = !this.isJiraLocked;
+    const jiraControl = this.projectForm.get('jiraLink');
+    if (this.isJiraLocked) {
+      jiraControl?.disable();
+      jiraControl?.setValue('');
+    } else {
+      jiraControl?.enable();
     }
   }
 
-  removeMember(index: number): void {
-    this.selectedMembers.splice(index, 1);
+  addMember(userId: number): void {
+    if (!userId) return;
+    
+    const member = this.availableMembers.find(m => m.id === userId);
+    if (member && !this.selectedMembers.some(m => m.id === member.id)) {
+      this.selectedMembers.push(member);
+    }
+  }
+
+  removeMember(userId: number): void {
+    this.selectedMembers = this.selectedMembers.filter(m => m.id !== userId);
   }
 
   onSubmit(): void {
-    console.log('Form submitted', {
-      isEditing: this.isEditing,
-      formValid: this.projectForm.valid,
-      formValue: this.projectForm.value,
-      selectedMembers: this.selectedMembers
-    });
-
-    if (this.projectForm.valid && this.selectedMembers.length > 0) {
+    if (this.projectForm.valid && this.selectedMembers.length > 0 && this.currentUser) {
       try {
         const project: Project = {
-          id: this.projectId || Date.now(),
-        name: this.projectForm.get('projectName')?.value,
-        description: this.projectForm.get('description')?.value,
-        startDate: this.projectForm.get('startDate')?.value,
-        endDate: this.projectForm.get('endDate')?.value,
-        status: 'In Progress',
-          projectManager: this.currentManagerId,
-        teamMembers: this.selectedMembers
-      };
+          projectId: this.projectId || Date.now(),
+          projectName: this.projectForm.get('projectName')?.value,
+          manager: this.currentUser.id,
+          status: 'Initiation', // Default status
+          description: this.projectForm.get('description')?.value,
+          jiraLink: this.isJiraLocked ? null : this.projectForm.get('jiraLink')?.value,
+          startDate: new Date(this.projectForm.get('startDate')?.value),
+          endDate: new Date(this.projectForm.get('endDate')?.value),
+          priority: this.projectForm.get('priority')?.value,
+          createDate: new Date(),
+          department: this.currentUser.department,
+          teamMembers: this.selectedMembers
+        };
 
-        console.log('Saving project:', project);
-
-      // Get existing projects from localStorage
-      const existingProjects = JSON.parse(localStorage.getItem('projects') || '[]');
-      
+        // Get existing projects from localStorage
+        const existingProjects = JSON.parse(localStorage.getItem('projects') || '[]');
+        
         if (this.isEditing && this.projectId) {
-          console.log('Updating existing project');
           // Update existing project
-          const index = existingProjects.findIndex((p: Project) => p.id === this.projectId);
+          const index = existingProjects.findIndex((p: Project) => p.projectId === this.projectId);
           if (index !== -1) {
             existingProjects[index] = project;
-      // Save updated projects
-      localStorage.setItem('projects', JSON.stringify(existingProjects));
-
-            console.log('Project updated, navigating back');
-            // Navigate back to select project with updated data
+            localStorage.setItem('projects', JSON.stringify(existingProjects));
             this.router.navigate(['/planepage/select-project'], {
               state: { 
                 reopenModal: true,
                 updatedProject: project
               }
             });
-          } else {
-            console.error('Project not found for update');
-            alert('Error: Project not found for update');
           }
         } else {
-          console.log('Creating new project');
           // Add new project
           existingProjects.push(project);
-          // Save updated projects
           localStorage.setItem('projects', JSON.stringify(existingProjects));
-      this.showModal = true;
+          this.showModal = true;
         }
       } catch (error) {
         console.error('Error saving project:', error);
         alert('There was an error saving the project. Please try again.');
       }
     } else {
-      console.log('Form validation failed', {
-        formErrors: this.projectForm.errors,
-        formStatus: this.projectForm.status,
-        selectedMembersCount: this.selectedMembers.length
-      });
-      // Show validation errors
       if (this.projectForm.invalid) {
         Object.keys(this.projectForm.controls).forEach(key => {
           const control = this.projectForm.get(key);
@@ -249,10 +228,16 @@ export class CreateProjectComponent implements OnInit {
     }
   }
 
-  onWindowClick(event: any): void {
-    const modal = document.querySelector('.modal');
-    if (event.target === modal) {
-      this.closeModal();
+  cancel(): void {
+    if (this.isEditing) {
+      // If in edit mode, go back to select-project page
+      this.router.navigate(['/planepage/select-project']);
+    } else if (this.fromDashboard) {
+      // If came from dashboard, go back to dashboard
+      this.router.navigate(['/planepage/manager-dashboard']);
+    } else {
+      // Default case: go to select-project page
+      this.router.navigate(['/planepage/select-project']);
     }
   }
 

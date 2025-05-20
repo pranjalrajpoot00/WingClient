@@ -24,20 +24,28 @@
             <table class="tasks-table">
                 <thead>
                     <tr>
-                        <th>Task ID</th>
-                        <th>Description</th>
+                        <th>Task Name</th>
                         <th>Project</th>
                         <th>Status</th>
                         <th>Assigned To</th>
-                        <th>Assignment Date</th>
+                        <th>Assigned On</th>
+                        <th>Planned Start Date</th>
+                        <th>Planned End Date</th>
                         <th>Deadline</th>
+                        <th>Priority</th>
+                        <th>Jira Link</th>
+                        <th>Estimate Hours</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let task of tasks">
-                        <td>{{ task.task_id }}</td>
-                        <td>{{ task.description }}</td>
+                        <td>
+                            <div class="task-name-container">
+                                {{ task.taskName }}
+                                <span class="info-icon" [title]="task.description">i</span>
+                            </div>
+                        </td>
                         <td>{{ task.project_name }}</td>
                         <td>
                             <span class="status-badge" [ngClass]="getStatusClass(task.status)">
@@ -45,8 +53,22 @@
                             </span>
                         </td>
                         <td>{{ task.assigned_to }}</td>
-                        <td>{{ task.assignment_date }}</td>
-                        <td>{{ task.deadline }}</td>
+                        <td>{{ task.assignedOn | date:'shortDate' }}</td>
+                        <td>{{ task.plannedStartDate | date:'shortDate' }}</td>
+                        <td>{{ task.plannedEndDate | date:'shortDate' }}</td>
+                        <td>{{ task.deadline | date:'shortDate' }}</td>
+                        <td>
+                            <span class="priority-badge" [ngClass]="'priority-' + task.priority.toLowerCase()">
+                                {{ task.priority }}
+                            </span>
+                        </td>
+                        <td>
+                            <a *ngIf="task.jiraLink" [href]="task.jiraLink" target="_blank" class="jira-link">
+                                <i class="fas fa-external-link-alt"></i> View
+                            </a>
+                            <span *ngIf="!task.jiraLink">-</span>
+                        </td>
+                        <td>{{ task.estimatedHours }}</td>
                         <td>
                             <button class="action-button" (click)="openStatusModal(task)">
                                 Update Status

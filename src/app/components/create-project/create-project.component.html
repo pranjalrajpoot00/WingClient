@@ -1,90 +1,150 @@
-<!-- Breadcrumb -->
-<div class="breadcrumb">
-    <a href="#"><span class="icon">🏠</span> Home</a>
-    <span>></span>
-    <a href="#">project management</a>
-    <span>></span>
-    <span>Add project</span>
-</div>
-
-
-<!-- Tab Navigation -->
-<div class="tab-navigation">
-    <button class="active">Project Management</button>
-</div>
-
-
-
 <!-- Main Content -->
 <div class="main-content">
     <div class="create-project-container">
         <div class="page-header">
             <h1>{{ isEditing ? 'Edit Project' : 'Create New Project' }}</h1>
+            <p class="subtitle">Fill in the project details below to {{ isEditing ? 'update' : 'create' }} your project</p>
         </div>
-        <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" #projectFormElement="ngForm">
-        <div class="form-group">
-            <label for="project-name">Name of the Project:</label>
-            <input type="text" id="project-name" formControlName="projectName" 
-                   [class.invalid]="projectForm.get('projectName')?.invalid && projectForm.get('projectName')?.touched">
-            <div class="error-message" *ngIf="projectForm.get('projectName')?.invalid && projectForm.get('projectName')?.touched">
-                Project name is required and must be at least 3 characters long
+        <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" #projectFormElement="ngForm" class="project-form">
+            <!-- Project Name -->
+            <div class="form-group">
+                <label for="project-name">
+                    <i class="fas fa-project-diagram"></i>
+                    Project Name
+                </label>
+                <input type="text" id="project-name" formControlName="projectName" 
+                       [class.invalid]="projectForm.get('projectName')?.invalid && projectForm.get('projectName')?.touched"
+                       maxlength="20" placeholder="Enter project name">
+                <div class="error-message" *ngIf="projectForm.get('projectName')?.invalid && projectForm.get('projectName')?.touched">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Project name is required and must be at most 20 characters long
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label for="project-description">Description:</label>
-            <textarea id="project-description" formControlName="description" rows="4"
-                      [class.invalid]="projectForm.get('description')?.invalid && projectForm.get('description')?.touched"></textarea>
-            <div class="error-message" *ngIf="projectForm.get('description')?.invalid && projectForm.get('description')?.touched">
-                Description is required and must be at least 10 characters long
+            <!-- Description -->
+            <div class="form-group">
+                <label for="project-description">
+                    <i class="fas fa-align-left"></i>
+                    Description
+                </label>
+                <textarea id="project-description" formControlName="description" rows="4"
+                          [class.invalid]="projectForm.get('description')?.invalid && projectForm.get('description')?.touched"
+                          maxlength="200" placeholder="Enter project description"></textarea>
+                <div class="error-message" *ngIf="projectForm.get('description')?.invalid && projectForm.get('description')?.touched">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Description is required and must be at most 200 characters long
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label for="start-date">Start date:</label>
-            <input type="date" id="start-date" formControlName="startDate"
-                   [class.invalid]="projectForm.get('startDate')?.invalid && projectForm.get('startDate')?.touched">
-            <div class="error-message" *ngIf="projectForm.get('startDate')?.invalid && projectForm.get('startDate')?.touched">
-                Start date is required
-            </div>
-        </div>
+            <!-- Dates and Priority -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="start-date">
+                        <i class="fas fa-calendar-alt"></i>
+                        Start Date
+                    </label>
+                    <input type="date" id="start-date" formControlName="startDate"
+                           [class.invalid]="projectForm.get('startDate')?.invalid && projectForm.get('startDate')?.touched">
+                    <div class="error-message" *ngIf="projectForm.get('startDate')?.invalid && projectForm.get('startDate')?.touched">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Start date is required
+                    </div>
+                </div>
 
-        <div class="form-group">
-            <label for="end-date">End date:</label>
-            <input type="date" id="end-date" formControlName="endDate"
-                   [class.invalid]="projectForm.get('endDate')?.invalid && projectForm.get('endDate')?.touched">
-            <div class="error-message" *ngIf="projectForm.get('endDate')?.invalid && projectForm.get('endDate')?.touched">
-                End date is required
-            </div>
-        </div>
-        
-        <div class="form-group">
-            <label>Team Members:</label>
-            <div class="member-selection">
-                <select (change)="addMember($any($event.target).value)" class="member-select">
-                    <option value="">Select a team member</option>
-                    <option *ngFor="let member of availableMembers" [value]="member.name">
-                        {{ member.name }} ({{ member.role }})
-                    </option>
-                </select>
-            </div>
-        </div>
+                <div class="form-group">
+                    <label for="end-date">
+                        <i class="fas fa-calendar-alt"></i>
+                        End Date
+                    </label>
+                    <input type="date" id="end-date" formControlName="endDate"
+                           [class.invalid]="projectForm.get('endDate')?.invalid && projectForm.get('endDate')?.touched">
+                    <div class="error-message" *ngIf="projectForm.get('endDate')?.invalid && projectForm.get('endDate')?.touched">
+                        <i class="fas fa-exclamation-circle"></i>
+                        End date is required
+                    </div>
+                </div>
 
-        <div class="selected-members">
-            <div *ngFor="let member of selectedMembers; let i = index" class="member-info">
-                <span class="member-name">{{ member.name }}</span>
-                <span class="member-role">{{ member.role }}</span>
-                <span class="remove-member" (click)="removeMember(i)">×</span>
+                <div class="form-group">
+                    <label for="priority">
+                        <i class="fas fa-flag"></i>
+                        Priority
+                    </label>
+                    <select id="priority" formControlName="priority"
+                            [class.invalid]="projectForm.get('priority')?.invalid && projectForm.get('priority')?.touched">
+                        <option *ngFor="let priority of priorities" [value]="priority" 
+                                [class]="'priority-' + priority.toLowerCase()">
+                            {{ priority }}
+                        </option>
+                    </select>
+                </div>
             </div>
-        </div>
-        
+
+            <!-- Jira Link -->
+            <div class="form-group">
+                <div class="label-with-icon">
+                    <label for="jira-link">
+                        <i class="fas fa-link"></i>
+                        Jira Link
+                    </label>
+                    <i class="fas" [class.fa-lock]="isJiraLocked" [class.fa-unlock]="!isJiraLocked" 
+                       (click)="toggleJiraLock()" [class.locked]="isJiraLocked" 
+                       [title]="isJiraLocked ? 'Click to unlock and enter Jira link' : 'Click to lock Jira link'"></i>
+                </div>
+                <div class="jira-input-wrapper">
+                    <input type="text" id="jira-link" formControlName="jiraLink" 
+                           [class.invalid]="projectForm.get('jiraLink')?.invalid && projectForm.get('jiraLink')?.touched"
+                           maxlength="200" 
+                           placeholder="Enter Jira link"
+                           [disabled]="isJiraLocked">
+                </div>
+            </div>
+
+            <!-- Team Members -->
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-users"></i>
+                    Team Members
+                </label>
+                <div class="member-selection">
+                    <select (change)="addMember($any($event.target).value)" class="member-select">
+                        <option value="">Select a team member</option>
+                        <option *ngFor="let member of availableMembers" [value]="member.id">
+                            {{ member.name }} ({{ member.role }})
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Selected Members -->
+            <div class="selected-members" *ngIf="selectedMembers.length > 0">
+                <div *ngFor="let member of selectedMembers" class="member-info">
+                    <div class="member-details">
+                        <div class="member-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="member-text">
+                            <span class="member-name">{{ member.name }}</span>
+                            <span class="member-role">{{ member.role }}</span>
+                            <span class="member-department">{{ member.department }}</span>
+                        </div>
+                    </div>
+                    <button type="button" class="remove-member" (click)="removeMember(member.id)" title="Remove member">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
             <div class="form-actions">
-                <button type="submit" class="submit-btn" [disabled]="!projectForm.valid || selectedMembers.length === 0">
+                <button type="button" class="btn secondary" (click)="cancel()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="submit" class="btn primary" [disabled]="!projectForm.valid || selectedMembers.length === 0">
+                    <i class="fas" [class.fa-save]="isEditing" [class.fa-plus]="!isEditing"></i>
                     {{ isEditing ? 'Update Project' : 'Create Project' }}
                 </button>
-                <button type="button" class="cancel-btn" (click)="closeModal()">Cancel</button>
             </div>
-    </form>
+        </form>
     </div>
 </div>
 
@@ -94,13 +154,79 @@
 <!-- Success Modal -->
 <div class="modal" [style.display]="showModal ? 'flex' : 'none'">
     <div class="modal-content">
-        <span class="close-modal" (click)="closeModal()">×</span>
-        <p class="modal-title">
-            <span class="success-icon">✓</span>
-            Project {{ isEditing ? 'updated' : 'created' }} successfully
-        </p>
-        <p class="modal-info">Project: {{projectForm.get('projectName')?.value}}</p>
-        <p class="modal-info">Starts from: {{projectForm.get('startDate')?.value | date:'MMM d, y'}}</p>
-        <p class="modal-info">Ends on: {{projectForm.get('endDate')?.value | date:'MMM d, y'}}</p>
+        <div class="modal-header">
+            <span class="success-icon"><i class="fas fa-check-circle"></i></span>
+            <h2>Project {{ isEditing ? 'Updated' : 'Created' }} Successfully</h2>
+            <button class="close-modal" (click)="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="info-grid">
+                <div class="info-item">
+                    <i class="fas fa-project-diagram"></i>
+                    <div class="info-content">
+                        <label>Project Name</label>
+                        <span>{{ projectForm.get('projectName')?.value }}</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <div class="info-content">
+                        <label>Start Date</label>
+                        <span>{{ projectForm.get('startDate')?.value | date:'MMM d, y' }}</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <div class="info-content">
+                        <label>End Date</label>
+                        <span>{{ projectForm.get('endDate')?.value | date:'MMM d, y' }}</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-flag"></i>
+                    <div class="info-content">
+                        <label>Priority</label>
+                        <span [class]="'priority-badge priority-' + projectForm.get('priority')?.value?.toLowerCase()">
+                            {{ projectForm.get('priority')?.value }}
+                        </span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-tasks"></i>
+                    <div class="info-content">
+                        <label>Status</label>
+                        <span class="status-badge status-initiation">Initiation</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-building"></i>
+                    <div class="info-content">
+                        <label>Department</label>
+                        <span>{{ currentUser?.department }}</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-user-tie"></i>
+                    <div class="info-content">
+                        <label>Manager</label>
+                        <span>{{ currentUser?.name }}</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-users"></i>
+                    <div class="info-content">
+                        <label>Team Members</label>
+                        <span>{{ selectedMembers.length }} members</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn primary" (click)="closeModal()">
+                <i class="fas fa-check"></i> Done
+            </button>
+        </div>
     </div>
 </div>

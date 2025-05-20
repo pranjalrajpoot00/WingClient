@@ -15,16 +15,61 @@
     text-decoration: underline;
 }
 
+/* Project Header */
+.project-header {
+    background-color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.project-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.project-title h1 {
+    margin: 0;
+    color: #1f3a60;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.project-status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.status-label {
+    color: #4a5568;
+    font-size: 14px;
+}
+
+.update-status-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
 /* Navigation */
 .navigation {
     background-color: #f8f9fa;
     padding: 10px 20px;
     border-bottom: 1px solid #dee2e6;
+    margin-bottom: 20px;
+}
+
+.tabs-container {
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 .tabs {
     display: flex;
     gap: 20px;
+    justify-content: center;
 }
 
 .tab {
@@ -41,7 +86,7 @@
 }
 
 .tab.active {
-    background-color: #007bff;
+    background-color: #3c57a8;
     color: white;
 }
 
@@ -95,26 +140,36 @@
     background-color: #f8f9fa;
 }
 
-/* Status Badges */
+/* Project Status Badges */
 .status-badge {
-    padding: 4px 8px;
+    padding: 6px 12px;
     border-radius: 12px;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 500;
 }
 
-.status-completed {
+.status-initiation {
+    background-color: #6c757d;
+    color: white;
+}
+
+.status-planning {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.status-execution {
     background-color: #28a745;
     color: white;
 }
 
-.status-in-progress {
+.status-monitoring {
     background-color: #ffc107;
     color: #212529;
 }
 
-.status-not-started {
-    background-color: #6c757d;
+.status-closure {
+    background-color: #dc3545;
     color: white;
 }
 
@@ -606,4 +661,28 @@ select option {
 
 .users-list::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
+}
+
+.label-with-icon label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.label-with-icon label i {
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s ease;
+}
+
+.label-with-icon label i:hover {
+    color: #007bff;
+}
+
+.label-with-icon label i.locked {
+    color: #1f3a60;
+}
+
+.label-with-icon label i.locked:hover {
+    color: #2c5282;
 } 

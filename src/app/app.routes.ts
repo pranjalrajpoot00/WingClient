@@ -2,15 +2,13 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './components/login/login.component';
 import { ActivityMonitoringComponent } from './components/activity-monitoring/activity-monitoring.component';
 import { ManageUsersComponent } from './components/manage-users/manage-users.component';
+import { AddUserComponent } from './components/add-user/add-user.component';
 import { ManagerDashboardComponent } from './components/manager-dashboard/manager-dashboard.component';
 import { SelectProjectComponent } from './components/select-project/select-project.component';
-import { ProjectDetailsComponent } from './components/project-details/project-details.component';
 import { CalendarComponent } from './components/calendar/calendar.component';
 import { SelfHelpComponent } from './components/self-help/self-help.component';
 import { CreateProjectComponent } from './components/create-project/create-project.component';
-import { AddUserComponent } from './components/add-user/add-user.component';
 import { ProjectManagementComponent } from './components/project-management/project-management.component';
-// import { ResourcesComponent } from './components/resources/resources.component';
 import { AnalysisComponent } from './components/analysis/analysis.component';
 import { PlanepageComponent } from './planepage/planepage.component';
 import { ProjectListComponent } from './components/project-list/project-list.component';
@@ -33,22 +31,18 @@ export const routes: Routes = [
     component: PlanepageComponent,
     children: [
       { 
-        path: 'admin',
+        path: 'admin-dashboard',
         component: AdminDashboardComponent,
         children: [
-          { path: '', redirectTo: 'manage-users', pathMatch: 'full' },
           { path: 'manage-users', component: ManageUsersComponent },
           { path: 'add-users', component: AddUserComponent },
-          { path: 'activity-monitoring', component: ActivityMonitoringComponent }
+          { path: 'activity-monitoring', component: ActivityMonitoringComponent },
+          { path: '', redirectTo: 'manage-users', pathMatch: 'full' }
         ]
       },
       { 
         path: 'manager-dashboard',
         component: ManagerDashboardComponent
-      },
-      { 
-        path: 'team-members',
-        component: TeamMembersComponent
       },
       { 
         path: 'teamlead-dashboard',
@@ -63,25 +57,15 @@ export const routes: Routes = [
       { path: 'users-list', component: UserListComponent },
       { path: 'project-list', component: ProjectListComponent },
       { path: 'select-project', component: SelectProjectComponent },
-      { path: 'project-details', component: ProjectDetailsComponent },
       { path: 'create-project', component: CreateProjectComponent },
       { path: 'project-management', component: ProjectManagementComponent },
       { path: 'resource-utilization', component: ResourceUtilizationComponent },
-      // { path: 'resources', component: ResourcesComponent },
       { path: 'your-project-list', component: YourProjectsComponent },
       { path: 'analysis', component: AnalysisComponent },
-      {
-        path: 'task-management',
-        component: TaskManagementComponent
-      },
-      { 
-        path: 'task-analysis',
-        component: TaskAnalysisComponent
-      },
-      { 
-        path: 'my-profile',
-        component: MyProfileComponent
-      },
+      { path: 'task-management', component: TaskManagementComponent },
+      { path: 'task-analysis', component: TaskAnalysisComponent },
+      { path: 'my-profile', component: MyProfileComponent },
+      { path: 'team-members', component: TeamMembersComponent },
       { path: '', redirectTo: 'manager-dashboard', pathMatch: 'full' }
     ]
   }

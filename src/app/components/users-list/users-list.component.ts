@@ -1,57 +1,107 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatInputModule } from '@angular/material/input';
-import { MatSortModule } from '@angular/material/sort';
 import { FormsModule } from '@angular/forms';
+import { DataService, User } from '../../services/data.service';
 
-interface Resource {
-  employeeId: number;
-  employeeName: string;
-  role: string;
-  skillSet: string;
-  reportingManager: string;
+interface FilterOptions {
+  department: string;
+  manager: string;
+  search: string;
 }
 
 @Component({
   selector: 'users-list',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatTableModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatInputModule,
-    MatSortModule
-  ],
+  imports: [CommonModule, FormsModule],
   templateUrl: './users-list.component.html',
   styleUrls: ['./users-list.component.css']
 })
 export class UserListComponent implements OnInit {
-  allResources: Resource[] = [];
-  filteredResources: Resource[] = [];
-  displayedColumns = ['employeeId', 'employeeName', 'role', 'skillSet', 'reportingManager'];
+  users: User[] = [];
+  filteredUsers: User[] = [];
+  departments = ['IDCC', 'IEC', 'ICC'];
+  managers: string[] = [];
+  
+  filterOptions: FilterOptions = {
+    department: '',
+    manager: '',
+    search: ''
+  };
 
-  skillFilter = '';
-  managerFilter = '';
+  sortOptions = {
+    field: 'name',
+    direction: 'asc'
+  };
 
-  ngOnInit(): void {
-    // Replace this mock data with real API call
-    this.allResources = [
-      { employeeId: 1, employeeName: 'Alice', role: 'Developer', skillSet: 'Angular', reportingManager: 'John' },
-      { employeeId: 2, employeeName: 'Bob', role: 'Tester', skillSet: 'Selenium', reportingManager: 'Sara' },
-      { employeeId: 3, employeeName: 'Charlie', role: 'Developer', skillSet: 'React', reportingManager: 'John' },
-    ];
-    this.filteredResources = this.allResources;
+  constructor(private dataService: DataService) {}
+
+  ngOnInit() {
+    this.dataService.getUsers().subscribe({
+      next: (users: User[]) => {
+        this.users = users;
+        this.managers = [...new Set(users
+          .filter(user => user.role === 'manager')
+          .map(user => user.name))];
+        this.applyFilters();
+      },
+      error: (error) => {
+        console.error('Error fetching users:', error);
+      }
+    });
   }
 
-  filterResources() {
-    this.filteredResources = this.allResources.filter(resource =>
-      (!this.skillFilter || resource.skillSet.toLowerCase().includes(this.skillFilter.toLowerCase())) &&
-      (!this.managerFilter || resource.reportingManager.toLowerCase().includes(this.managerFilter.toLowerCase()))
-    );
+  getManagerName(managerId: number | undefined): string {
+    if (!managerId) return 'None';
+    const manager = this.users.find(user => user.id === managerId);
+    return manager ? manager.name : 'Unknown';
+  }
+
+  applyFilters() {
+    this.filteredUsers = this.users.filter(user => {
+      const matchesDepartment = !this.filterOptions.department || user.department === this.filterOptions.department;
+      const matchesManager = !this.filterOptions.manager || 
+        (user.reportingMgr && this.getManagerName(user.reportingMgr) === this.filterOptions.manager);
+      const matchesSearch = !this.filterOptions.search || 
+        user.name.toLowerCase().includes(this.filterOptions.search.toLowerCase()) ||
+        user.email.toLowerCase().includes(this.filterOptions.search.toLowerCase()) ||
+        user.username.toLowerCase().includes(this.filterOptions.search.toLowerCase());
+
+      return matchesDepartment && matchesManager && matchesSearch;
+    });
+
+    this.sortUsers();
+  }
+
+  sortUsers() {
+    this.filteredUsers.sort((a, b) => {
+      const aValue = a[this.sortOptions.field as keyof User];
+      const bValue = b[this.sortOptions.field as keyof User];
+
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return this.sortOptions.direction === 'asc' 
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
+
+      return 0;
+    });
+  }
+
+  onSort(field: string) {
+    if (this.sortOptions.field === field) {
+      this.sortOptions.direction = this.sortOptions.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortOptions.field = field;
+      this.sortOptions.direction = 'asc';
+    }
+    this.sortUsers();
+  }
+
+  onFilterChange() {
+    this.applyFilters();
+  }
+
+  onSearch() {
+    this.applyFilters();
   }
 }

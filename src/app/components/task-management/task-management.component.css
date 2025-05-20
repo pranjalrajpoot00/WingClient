@@ -82,6 +82,7 @@
     border-bottom: none;
 }
 
+/* Status Badge Colors */
 .status-badge {
     display: inline-block;
     padding: 0.35rem 0.75rem;
@@ -94,42 +95,42 @@
 }
 
 /* Not Started - Gray */
-.status-badge.not-started {
+.status-badge.status-not-started {
     background-color: #E5E7EB;
     color: #374151;
     border: 1px solid #D1D5DB;
 }
 
 /* In Progress - Blue */
-.status-badge.in-progress {
+.status-badge.status-in-progress {
     background-color: #DBEAFE;
     color: #1E40AF;
     border: 1px solid #BFDBFE;
 }
 
 /* In Testing - Yellow */
-.status-badge.in-testing {
+.status-badge.status-in-testing {
     background-color: #FEF3C7;
     color: #92400E;
     border: 1px solid #FDE68A;
 }
 
 /* In Review - Purple */
-.status-badge.in-review {
+.status-badge.status-in-review {
     background-color: #E0E7FF;
     color: #3730A3;
     border: 1px solid #C7D2FE;
 }
 
 /* Completed - Green */
-.status-badge.completed {
+.status-badge.status-completed {
     background-color: #D1FAE5;
     color: #065F46;
     border: 1px solid #A7F3D0;
 }
 
 /* Overdue - Red */
-.status-badge.overdue {
+.status-badge.status-overdue {
     background-color: #FEE2E2;
     color: #991B1B;
     border: 1px solid #FECACA;
@@ -286,4 +287,117 @@
     .status-options {
         grid-template-columns: 1fr;
     }
+}
+
+/* Priority Badge Colors */
+.priority-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    min-width: 80px;
+    text-align: center;
+}
+
+.priority-badge.priority-high {
+    background-color: #FEE2E2;
+    color: #991B1B;
+    border: 1px solid #FECACA;
+}
+
+.priority-badge.priority-medium {
+    background-color: #FEF3C7;
+    color: #92400E;
+    border: 1px solid #FDE68A;
+}
+
+.priority-badge.priority-low {
+    background-color: #D1FAE5;
+    color: #065F46;
+    border: 1px solid #A7F3D0;
+}
+
+.jira-link {
+    color: #2563eb;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.jira-link:hover {
+    text-decoration: underline;
+}
+
+.jira-link i {
+    font-size: 0.875rem;
+}
+
+.task-name-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #1f2937;
+    font-weight: 500;
+}
+
+.info-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #e5e7eb;
+    color: #6b7280;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-style: italic;
+    cursor: help;
+    transition: all 0.2s;
+}
+
+.info-icon:hover {
+    background-color: #2563eb;
+    color: white;
+}
+
+/* Custom tooltip styles */
+.info-icon[title] {
+    position: relative;
+}
+
+.info-icon[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 1rem 1.25rem;
+    background-color: #FEF9C3;
+    color: #1f2937;
+    font-size: 0.875rem;
+    border-radius: 0.5rem;
+    white-space: normal;
+    width: max-content;
+    max-width: 300px;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    line-height: 1.5;
+    border: 1px solid #FDE68A;
+}
+
+.info-icon[title]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 0.25rem);
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 0.25rem;
+    border-style: solid;
+    border-color: #FDE68A transparent transparent transparent;
+    z-index: 10;
 } 

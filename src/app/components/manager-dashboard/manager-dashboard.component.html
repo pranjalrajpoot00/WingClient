@@ -153,7 +153,6 @@
                                 <th>Team Lead</th>
                                 <th>Team Size</th>
                                 <th>Timeline</th>
-                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -172,11 +171,6 @@
                                 <td>{{ project.teamLead }}</td>
                                 <td>{{ project.teamSize }} members</td>
                                 <td>{{ project.startDate | date:'MMM d' }} - {{ project.endDate | date:'MMM d, y' }}</td>
-                                <td>
-                                    <button class="action-btn view-btn" (click)="navigateToProjectDetails(project.projectId)">
-                                        <i class="fas fa-eye"></i> View
-                                    </button>
-                                </td>
                             </tr>
                         </tbody>
                     </table>

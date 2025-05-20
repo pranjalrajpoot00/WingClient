@@ -77,50 +77,48 @@
         </div>
     </div>
 
-    <!-- Average Completion Card -->
-    <div class="completion-card">
-        <h3>Average Task Completion</h3>
-        <div class="completion-bar">
-            <div class="completion-progress" [style.width.%]="averageCompletion" [ngClass]="getCompletionClass(averageCompletion)">
-                {{ averageCompletion }}%
-            </div>
-        </div>
-    </div>
-
     <!-- Tasks List -->
     <div class="tasks-list">
-        <h3>Your Tasks</h3>
+        <div class="tasks-header">
+            <h3>Your Tasks</h3>
+            <div class="filter-section">
+                <select class="status-filter" [(ngModel)]="selectedStatus" (change)="filterTasks()">
+                    <option value="all">All Status</option>
+                    <option value="Not Started">Not Started</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="In Testing">In Testing</option>
+                    <option value="In Review">In Review</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Overdue">Overdue</option>
+                </select>
+            </div>
+        </div>
         <div class="tasks-table-container">
             <table class="tasks-table">
                 <thead>
                     <tr>
-                        <th>Task ID</th>
-                        <th>Description</th>
+                        <th>Task Name</th>
                         <th>Project</th>
                         <th>Status</th>
-                        <th>Completion</th>
-                        <th>Deadline</th>
+                        <th class="sortable" (click)="sortByDeadline()">
+                            Deadline
+                            <span class="sort-icon" [ngClass]="{'asc': sortDirection === 'asc', 'desc': sortDirection === 'desc'}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M6 9l6 6 6-6"/>
+                                </svg>
+                            </span>
+                        </th>
                         <th>Days Remaining</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let task of tasks">
-                        <td>{{ task.task_id }}</td>
+                    <tr *ngFor="let task of filteredTasks">
                         <td>{{ task.description }}</td>
                         <td>{{ task.project_name }}</td>
                         <td>
                             <span class="status-badge" [ngClass]="getStatusClass(task.status)">
                                 {{ task.status }}
                             </span>
-                        </td>
-                        <td>
-                            <div class="completion-bar small">
-                                <div class="completion-progress" 
-                                     [style.width.%]="task.completion_percentage"
-                                     [ngClass]="getCompletionClass(task.completion_percentage)">
-                                    {{ task.completion_percentage }}%
-                                </div>
-                            </div>
                         </td>
                         <td>{{ task.deadline }}</td>
                         <td [ngClass]="{'days-overdue': task.days_remaining < 0}">

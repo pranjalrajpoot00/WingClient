@@ -2,26 +2,30 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface User {
-  id: number;
-  username: string;
+  id: number;  // Primary key/identity
+  username: string;  // Employee ID (E400xxx format)
   name: string;
+  password?: string;
+  skillSet?: string;
+  reportingMgr?: number;  // References id of the manager
   role: string;
   email: string;
+  phoneNumber?: string;
   department: string;
 }
 
 export interface Project {
-  id: number;
-  name: string;
+  projectId: number;
+  projectName: string;
+  manager: number;
+  status: string;
   description: string;
+  jiraLink: string | null;
   startDate: Date;
   endDate: Date;
-  status: 'Not Started' | 'In Progress' | 'Completed';
-  createdBy: string;
-  teamMembers: string[];
+  priority: string;
+  createDate: Date;
   department: string;
-  priority: 'Low' | 'Medium' | 'High';
-  budget: number;
 }
 
 export interface Report {
@@ -40,56 +44,113 @@ export class DataService {
   private users: User[] = [
     {
       id: 1,
-      username: 'admin',
+      username: 'E400001',
       name: 'Admin User',
       role: 'admin',
       email: 'admin@pratt.com',
-      department: 'IT'
+      department: 'IDCC',
+      reportingMgr: undefined,
+      skillSet: 'Administration',
+      phoneNumber: '123-456-7890'
     },
     {
       id: 2,
-      username: 'manager',
+      username: 'E400002',
       name: 'Manager User',
       role: 'manager',
       email: 'manager@pratt.com',
-      department: 'Engineering'
+      department: 'IEC',
+      reportingMgr: 1,
+      skillSet: 'Project Management',
+      phoneNumber: '123-456-7891'
     },
     {
       id: 3,
-      username: 'user',
+      username: 'E400003',
       name: 'Regular User',
       role: 'user',
       email: 'user@pratt.com',
-      department: 'Operations'
+      department: 'ICC',
+      reportingMgr: 2,
+      skillSet: 'Development',
+      phoneNumber: '123-456-7892'
+    },
+    {
+      id: 4,
+      username: 'E400004',
+      name: 'Second Manager',
+      role: 'manager',
+      email: 'manager2@pratt.com',
+      department: 'IDCC',
+      reportingMgr: 1,
+      skillSet: 'Team Leadership',
+      phoneNumber: '123-456-7893'
+    },
+    {
+      id: 5,
+      username: 'E400005',
+      name: 'Another User',
+      role: 'user',
+      email: 'user2@pratt.com',
+      department: 'IEC',
+      reportingMgr: 2,
+      skillSet: 'Testing',
+      phoneNumber: '123-456-7894'
     }
   ];
 
   private projects: Project[] = [
     {
-      id: 1,
-      name: 'Engine Optimization',
+      projectId: 1,
+      projectName: 'Engine Optimization',
+      manager: 2,
+      status: 'In Progress',
       description: 'Optimize engine performance and efficiency',
+      jiraLink: 'https://jira.example.com/ENG-001',
       startDate: new Date('2024-01-01'),
       endDate: new Date('2024-06-30'),
-      status: 'In Progress',
-      createdBy: 'admin',
-      teamMembers: ['manager', 'user'],
-      department: 'Engineering',
       priority: 'High',
-      budget: 1000000
+      createDate: new Date('2024-01-01'),
+      department: 'IEC'
     },
     {
-      id: 2,
-      name: 'Safety Protocol Update',
+      projectId: 2,
+      projectName: 'Safety Protocol Update',
+      manager: 2,
+      status: 'Not Started',
       description: 'Update safety protocols and documentation',
+      jiraLink: 'https://jira.example.com/SAF-001',
       startDate: new Date('2024-02-01'),
       endDate: new Date('2024-04-30'),
-      status: 'Not Started',
-      createdBy: 'manager',
-      teamMembers: ['user'],
-      department: 'Operations',
       priority: 'Medium',
-      budget: 500000
+      createDate: new Date('2024-02-01'),
+      department: 'IDCC'
+    },
+    {
+      projectId: 3,
+      projectName: 'Quality Control System',
+      manager: 3,
+      status: 'Completed',
+      description: 'Implement new quality control measures',
+      jiraLink: 'https://jira.example.com/QC-001',
+      startDate: new Date('2024-01-15'),
+      endDate: new Date('2024-03-15'),
+      priority: 'High',
+      createDate: new Date('2024-01-15'),
+      department: 'ICC'
+    },
+    {
+      projectId: 4,
+      projectName: 'Data Analytics Platform',
+      manager: 1,
+      status: 'In Progress',
+      description: 'Develop new data analytics platform',
+      jiraLink: 'https://jira.example.com/DATA-001',
+      startDate: new Date('2024-03-01'),
+      endDate: new Date('2024-08-31'),
+      priority: 'High',
+      createDate: new Date('2024-03-01'),
+      department: 'IDCC'
     }
   ];
 
@@ -135,10 +196,11 @@ export class DataService {
     return this.users.find(user => user.id === id);
   }
 
-  addUser(user: Omit<User, 'id'>): void {
+  addUser(user: Omit<User, 'id' | 'username'>): void {
     const newUser: User = {
       ...user,
-      id: this.getNextId(this.users)
+      id: this.getNextId(this.users) as number,
+      username: this.getNextEmployeeId()
     };
     this.users.push(newUser);
     this.usersSubject.next(this.users);
@@ -163,31 +225,36 @@ export class DataService {
   }
 
   getProjectById(id: number): Project | undefined {
-    return this.projects.find(project => project.id === id);
+    return this.projects.find(project => project.projectId === id);
   }
 
   getProjectsByUser(username: string): Observable<Project[]> {
     return new Observable(observer => {
       this.projectsSubject.subscribe(projects => {
-        const userProjects = projects.filter(project => 
-          project.createdBy === username || project.teamMembers.includes(username)
-        );
+        // First get the user's ID from their username
+        const user = this.users.find(u => u.username === username);
+        if (!user) {
+          observer.next([]);
+          return;
+        }
+        // Filter projects where the user is the manager
+        const userProjects = projects.filter(project => project.manager === user.id);
         observer.next(userProjects);
       });
     });
   }
 
-  addProject(project: Omit<Project, 'id'>): void {
+  addProject(project: Omit<Project, 'projectId'>): void {
     const newProject: Project = {
       ...project,
-      id: this.getNextId(this.projects)
+      projectId: this.getNextId(this.projects) as number
     };
     this.projects.push(newProject);
     this.projectsSubject.next(this.projects);
   }
 
   updateProject(project: Project): void {
-    const index = this.projects.findIndex(p => p.id === project.id);
+    const index = this.projects.findIndex(p => p.projectId === project.projectId);
     if (index !== -1) {
       this.projects[index] = project;
       this.projectsSubject.next(this.projects);
@@ -195,7 +262,7 @@ export class DataService {
   }
 
   deleteProject(id: number): void {
-    this.projects = this.projects.filter(project => project.id !== id);
+    this.projects = this.projects.filter(project => project.projectId !== id);
     this.projectsSubject.next(this.projects);
   }
 
@@ -211,7 +278,7 @@ export class DataService {
   addReport(report: Omit<Report, 'id'>): void {
     const newReport: Report = {
       ...report,
-      id: this.getNextId(this.reports)
+      id: this.getNextId(this.reports) as number
     };
     this.reports.push(newReport);
     this.reportsSubject.next(this.reports);
@@ -231,7 +298,24 @@ export class DataService {
   }
 
   // Helper method to get next ID
-  private getNextId(items: any[]): number {
-    return Math.max(...items.map(item => item.id), 0) + 1;
+  private getNextId(items: any[]): number | string {
+    if (items.length === 0) return 1;
+
+    // For User items
+    if ('id' in items[0] && typeof items[0].id === 'number') {
+      return Math.max(...items.map(item => item.id), 0) + 1;
+    }
+
+    // For Project and Report items
+    return Math.max(...items.map(item => item.projectId || item.id), 0) + 1;
+  }
+
+  // Helper method to get next Employee ID
+  private getNextEmployeeId(): string {
+    const maxId = Math.max(...this.users.map(user => {
+      const numPart = parseInt(user.username.substring(1));
+      return isNaN(numPart) ? 0 : numPart;
+    }));
+    return `E${(maxId + 1).toString().padStart(6, '0')}`;
   }
 } 

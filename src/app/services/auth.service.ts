@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 export interface User {
   id: number;
   username: string;
-  role: 'admin' | 'manager' | 'teamlead' | 'developer';
+  role: 'admin' | 'manager' | 'teamlead' | 'developer' | 'tester' | 'other';
 }
 
 @Injectable({
@@ -16,15 +16,17 @@ export class AuthService {
 
   // Mock users for testing
   // Valid login credentials:
-  // - Admin: username: 'admin', password: any
-  // - Manager: username: 'manager', password: any
-  // - Team Lead: username: 'teamlead', password: any
-  // - Developer: username: 'developer', password: any
+  // - Admin: username: 'admin', password: any, role: 'admin'
+  // - Manager: username: 'manager', password: any, role: 'manager'
+  // - Team Lead: username: 'teamlead', password: any, role: 'teamlead'
+  // - Developer: username: 'developer', password: any, role: 'developer'
+  // - Tester: username: 'tester', password: any, role: 'tester'
   private users: User[] = [
     { id: 1, username: 'admin', role: 'admin' },
     { id: 2, username: 'manager', role: 'manager' },
     { id: 3, username: 'teamlead', role: 'teamlead' },
-    { id: 4, username: 'developer', role: 'developer' }
+    { id: 4, username: 'developer', role: 'developer' },
+    { id: 5, username: 'tester', role: 'tester' }
   ];
 
   constructor() {
@@ -35,9 +37,9 @@ export class AuthService {
     }
   }
 
-  login(username: string, password: string): boolean {
+  login(username: string, password: string, role: string): boolean {
     // In a real application, this would be an API call
-    const user = this.users.find(u => u.username === username);
+    const user = this.users.find(u => u.username === username && u.role === role);
     if (user) {
       this.currentUserSubject.next(user);
       localStorage.setItem('currentUser', JSON.stringify(user));
@@ -73,5 +75,10 @@ export class AuthService {
   isDeveloper(): boolean {
     const user = this.getCurrentUser();
     return user?.role === 'developer';
+  }
+
+  isTester(): boolean {
+    const user = this.getCurrentUser();
+    return user?.role === 'tester';
   }
 } 

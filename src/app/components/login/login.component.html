@@ -13,15 +13,33 @@
             </div>
             <form (ngSubmit)="login()" #loginForm="ngForm">
                 <div class="form-group">
-                    <label for="username">Username</label>
+                    <label for="username">Employee ID</label>
                     <input 
                         type="text" 
                         id="username" 
                         name="username" 
                         [(ngModel)]="username" 
                         required 
-                        placeholder="Enter your username"
+                        placeholder="Enter your Employee ID"
                     >
+                </div>
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select 
+                        id="role" 
+                        name="role" 
+                        [(ngModel)]="selectedRole" 
+                        required 
+                        class="form-control"
+                    >
+                        <option value="" disabled selected>Select your role</option>
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                        <option value="teamlead">Team Lead</option>
+                        <option value="developer">Developer</option>
+                        <option value="tester">Tester</option>
+                        <option value="other">Other</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>

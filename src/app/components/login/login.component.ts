@@ -14,6 +14,7 @@ import { AuthService } from '../../services/auth.service';
 export class LoginComponent {
   username: string = '';
   password: string = '';
+  selectedRole: string = '';
   showPassword: boolean = false;
 
   constructor(
@@ -26,13 +27,13 @@ export class LoginComponent {
   }
 
   login() {
-    if (this.username && this.password) {
-      if (this.authService.login(this.username, this.password)) {
+    if (this.username && this.password && this.selectedRole) {
+      if (this.authService.login(this.username, this.password, this.selectedRole)) {
         // Navigate based on role
         const user = this.authService.getCurrentUser();
         switch (user?.role) {
           case 'admin':
-            this.router.navigate(['/planepage/admin']);
+            this.router.navigate(['/planepage/admin-dashboard']);
             break;
           case 'manager':
             this.router.navigate(['/planepage/manager-dashboard']);
@@ -43,14 +44,18 @@ export class LoginComponent {
           case 'developer':
             this.router.navigate(['/planepage/developer-dashboard']);
             break;
+          case 'tester':
+          case 'other':
+            this.router.navigate(['/planepage/dashboard']);
+            break;
           default:
-            this.router.navigate(['/planepage']);
+            this.router.navigate(['/planepage/dashboard']);
         }
       } else {
         alert('Invalid Credentials.');
       }
     } else {
-      alert('Please enter both username and password.');
+      alert('Please enter Employee ID, select a role, and password.');
     }
   }
 }

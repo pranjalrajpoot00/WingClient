@@ -5,14 +5,19 @@ import { AuthService } from '../../services/auth.service';
 
 interface Task {
   task_id: number;
+  taskName: string;
   description: string;
   status: string;
-  assignment_date: string;
+  priority: string;
+  jiraLink: string | null;
+  plannedStartDate: string;
+  plannedEndDate: string;
   deadline: string;
   assigned_to: string;
-  created_by: string;
-  repo_url_branch: string;
+  assignedOn: string;
   project_name: string;
+  estimatedHours: number;
+  actualHours?: number;
 }
 
 @Component({
@@ -31,12 +36,10 @@ export class TaskManagementComponent implements OnInit {
   isDeveloper: boolean = false;
 
   statusOptions = [
-    'Not Started',
     'In Progress',
     'In Testing',
     'In Review',
-    'Completed',
-    'Overdue'
+    'Completed'
   ];
 
   constructor(
@@ -62,36 +65,51 @@ export class TaskManagementComponent implements OnInit {
     const mockTasks: Task[] = [
       {
         task_id: 1,
-        description: 'Implement user authentication',
+        taskName: 'Implement Authentication',
+        description: 'Implement user authentication system',
         status: 'In Progress',
-        assignment_date: '2024-03-15',
+        priority: 'High',
+        jiraLink: 'https://jira.example.com/TASK-1',
+        plannedStartDate: '2024-03-15',
+        plannedEndDate: '2024-03-20',
         deadline: '2024-03-20',
         assigned_to: 'developer1',
-        created_by: 'Manager',
-        repo_url_branch: 'feature/auth',
-        project_name: 'Project Alpha'
+        assignedOn: '2024-03-14',
+        project_name: 'Project Alpha',
+        estimatedHours: 40,
+        actualHours: 25
       },
       {
         task_id: 2,
-        description: 'Design database schema',
+        taskName: 'Database Design',
+        description: 'Design and implement database schema',
         status: 'Completed',
-        assignment_date: '2024-03-10',
+        priority: 'Medium',
+        jiraLink: 'https://jira.example.com/TASK-2',
+        plannedStartDate: '2024-03-10',
+        plannedEndDate: '2024-03-15',
         deadline: '2024-03-15',
         assigned_to: 'developer2',
-        created_by: 'Team Lead',
-        repo_url_branch: 'feature/db-design',
-        project_name: 'Project Alpha'
+        assignedOn: '2024-03-09',
+        project_name: 'Project Alpha',
+        estimatedHours: 24,
+        actualHours: 20
       },
       {
         task_id: 3,
-        description: 'API Integration',
+        taskName: 'API Integration',
+        description: 'Integrate third-party API services',
         status: 'Overdue',
-        assignment_date: '2024-03-01',
+        priority: 'High',
+        jiraLink: null,
+        plannedStartDate: '2024-03-01',
+        plannedEndDate: '2024-03-10',
         deadline: '2024-03-10',
         assigned_to: 'developer1',
-        created_by: 'Team Lead',
-        repo_url_branch: 'feature/api',
-        project_name: 'Project Beta'
+        assignedOn: '2024-02-28',
+        project_name: 'Project Beta',
+        estimatedHours: 32,
+        actualHours: 35
       }
     ];
 
@@ -99,9 +117,45 @@ export class TaskManagementComponent implements OnInit {
     this.tasks = this.isDeveloper 
       ? mockTasks.filter(task => task.assigned_to === this.username)
       : mockTasks;
+
+    // Update task statuses based on dates
+    this.updateTaskStatuses();
+  }
+
+  updateTaskStatuses() {
+    const currentDate = new Date();
+    
+    this.tasks.forEach(task => {
+      const plannedStartDate = new Date(task.plannedStartDate);
+      const plannedEndDate = new Date(task.plannedEndDate);
+
+      // If current date is before planned start date, set status to "Not Started"
+      if (currentDate < plannedStartDate) {
+        task.status = 'Not Started';
+      }
+      // If current date is after planned end date and status is not "Completed", set to "Overdue"
+      else if (currentDate > plannedEndDate && task.status !== 'Completed') {
+        task.status = 'Overdue';
+      }
+    });
   }
 
   updateTaskStatus(task: Task, newStatus: string) {
+    // Only allow status update if the task is not automatically set to "Not Started" or "Overdue"
+    const currentDate = new Date();
+    const plannedStartDate = new Date(task.plannedStartDate);
+    const plannedEndDate = new Date(task.plannedEndDate);
+
+    if (currentDate < plannedStartDate) {
+      // Don't allow status update if before planned start date
+      return;
+    }
+
+    if (currentDate > plannedEndDate && newStatus !== 'Completed') {
+      // Don't allow status update if after planned end date and not setting to Completed
+      return;
+    }
+
     // TODO: Replace with actual API call
     const taskIndex = this.tasks.findIndex(t => t.task_id === task.task_id);
     if (taskIndex !== -1) {
@@ -112,6 +166,15 @@ export class TaskManagementComponent implements OnInit {
   }
 
   openStatusModal(task: Task) {
+    // Don't open modal if task is automatically set to "Not Started" or "Overdue"
+    const currentDate = new Date();
+    const plannedStartDate = new Date(task.plannedStartDate);
+    const plannedEndDate = new Date(task.plannedEndDate);
+
+    if (currentDate < plannedStartDate || (currentDate > plannedEndDate && task.status !== 'Completed')) {
+      return;
+    }
+
     this.selectedTask = task;
     this.showStatusModal = true;
   }

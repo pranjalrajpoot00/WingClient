@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { DataService, Project } from '../../services/data.service';
+import { DataService, Project, User } from '../../services/data.service';
 
 interface FilterOptions {
   status: string;
@@ -22,9 +22,10 @@ export class ProjectListComponent implements OnInit {
   projects: Project[] = [];
   filteredProjects: Project[] = [];
   currentUser: string = '';
-  departments = ['Engineering', 'Operations', 'IT', 'HR', 'Finance'];
+  departments = ['IDCC', 'IEC', 'ICC'];
   priorities = ['Low', 'Medium', 'High'];
   statuses = ['Not Started', 'In Progress', 'Completed'];
+  users: User[] = [];
   
   filterOptions: FilterOptions = {
     status: '',
@@ -34,7 +35,7 @@ export class ProjectListComponent implements OnInit {
   };
 
   sortOptions = {
-    field: 'name',
+    field: 'projectName',
     direction: 'asc'
   };
 
@@ -48,12 +49,21 @@ export class ProjectListComponent implements OnInit {
     const currentUser = localStorage.getItem('currentUser');
     if (currentUser) {
       this.currentUser = JSON.parse(currentUser).username;
-      // Get projects for current user
-      this.dataService.getProjectsByUser(this.currentUser).subscribe(projects => {
+      // Get all projects
+      this.dataService.getProjects().subscribe(projects => {
         this.projects = projects;
         this.applyFilters();
       });
+      // Get users for manager names
+      this.dataService.getUsers().subscribe(users => {
+        this.users = users;
+      });
     }
+  }
+
+  getManagerName(project: Project): string {
+    const manager = this.users.find(user => user.id === project.manager);
+    return manager ? manager.name : 'Unknown';
   }
 
   applyFilters() {
@@ -62,7 +72,7 @@ export class ProjectListComponent implements OnInit {
       const matchesPriority = !this.filterOptions.priority || project.priority === this.filterOptions.priority;
       const matchesDepartment = !this.filterOptions.department || project.department === this.filterOptions.department;
       const matchesSearch = !this.filterOptions.search || 
-        project.name.toLowerCase().includes(this.filterOptions.search.toLowerCase()) ||
+        project.projectName.toLowerCase().includes(this.filterOptions.search.toLowerCase()) ||
         project.description.toLowerCase().includes(this.filterOptions.search.toLowerCase());
 
       return matchesStatus && matchesPriority && matchesDepartment && matchesSearch;
@@ -80,12 +90,6 @@ export class ProjectListComponent implements OnInit {
         return this.sortOptions.direction === 'asc' 
           ? aValue.localeCompare(bValue)
           : bValue.localeCompare(aValue);
-      }
-
-      if (typeof aValue === 'number' && typeof bValue === 'number') {
-        return this.sortOptions.direction === 'asc'
-          ? aValue - bValue
-          : bValue - aValue;
       }
 
       if (aValue instanceof Date && bValue instanceof Date) {
@@ -114,20 +118,6 @@ export class ProjectListComponent implements OnInit {
 
   onSearch() {
     this.applyFilters();
-  }
-
-  navigateToCreateProject() {
-    this.router.navigate(['/project-form']);
-  }
-
-  editProject(project: Project) {
-    this.router.navigate(['/project-form', project.id]);
-  }
-
-  deleteProject(project: Project) {
-    if (confirm(`Are you sure you want to delete project: ${project.name}?`)) {
-      this.dataService.deleteProject(project.id);
-    }
   }
 
   getStatusClass(status: string): string {

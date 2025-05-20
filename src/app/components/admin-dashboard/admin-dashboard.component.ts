@@ -1,37 +1,36 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { AddUserComponent } from '../add-user/add-user.component';
-import { ActivityMonitoringComponent } from '../activity-monitoring/activity-monitoring.component';
-import { ManageUsersComponent } from '../manage-users/manage-users.component';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
   imports: [
     CommonModule,
-    RouterModule,
-    AddUserComponent,
-    ActivityMonitoringComponent,
-    ManageUsersComponent
+    RouterModule
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css'
 })
 export class AdminDashboardComponent implements OnInit {
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private userService: UserService
+  ) {}
 
   ngOnInit() {}
 
   navigateToManageUsers() {
-    this.router.navigate(['/planepage/admin/manage-users']);
+    this.router.navigate(['/planepage/admin-dashboard/manage-users']);
   }
 
   navigateToAddUser() {
-    this.router.navigate(['/planepage/admin/add-users']);
+    this.userService.clearEditMode();
+    this.router.navigate(['/planepage/admin-dashboard/add-users']);
   }
 
   navigateToActivityMonitoring() {
-    this.router.navigate(['/planepage/admin/activity-monitoring']);
+    this.router.navigate(['/planepage/admin-dashboard/activity-monitoring']);
   }
 }

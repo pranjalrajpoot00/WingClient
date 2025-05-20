@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgxChartsModule, Color, ScaleType } from '@swimlane/ngx-charts';
+import { ProjectStatus, Project } from '../../types/project.types';
 
 interface User {
   user_id: string;
@@ -30,34 +31,23 @@ interface TeamMember {
   user?: User; // Joined user data
 }
 
-interface Project {
-  project_id: string;
-  project_name: string;
-  description: string;
-  start_date: string;
-  end_date: string;
-  status: string;
-  priority: string;
-  team_id: string;
-  team?: Team; // Joined team data
-}
-
 interface Task {
-  task_id: number;
-  project_id: string;
-  task_name: string;
+  taskId: number;
+  projectID: number;
+  assignedTo: number;
   description: string;
-  planned_start_date: string;
-  planned_end_date: string;
-  actual_start_date: string | null;
-  actual_end_date: string | null;
+  deadline: string;
   status: string;
   priority: string;
-  estimated_hours: number;
-  actual_hours: number | null;
-  assignee_id: string;
-  assignee?: User; // Joined user data
-  comments: Comment[];
+  jiraLink: string | null;
+  taskName: string;
+  plannedStartDate: string;
+  plannedEndDate: string;
+  actualStartDate: string | null;
+  actualEndDate: string | null;
+  estimatedHours: number;
+  actualHours: number | null;
+  assignee?: User;
 }
 
 interface Comment {
@@ -103,40 +93,15 @@ export class ProjectManagementComponent implements OnInit {
   activeTab: string = 'Project Management';
   showTaskModal: boolean = false;
   showResourceModal: boolean = false;
-  showCommentModal: boolean = false;
-  currentProject: any = null;
+  showStatusModal: boolean = false;
+  currentProject: Project | null = null;
   tasks: Task[] = [];
   resources: Resource[] = [];
-  newTask: Task = {
-    task_id: 0,
-    project_id: '',
-    task_name: '',
-    description: '',
-    planned_start_date: '',
-    planned_end_date: '',
-    actual_start_date: null,
-    actual_end_date: null,
-    status: 'Not Started',
-    priority: 'Medium',
-    estimated_hours: 0,
-    actual_hours: null,
-    assignee_id: '',
-    comments: []
-  };
-  newResource: Resource = {
-    name: '',
-    eid: '',
-    role: '',
-    hours: 0,
-    assignedTasks: []
-  };
-  newComment: Comment = {
-    author: '',
-    date: '',
-    text: ''
-  };
   selectedTask: Task | null = null;
   isEditing: boolean = false;
+  selectedStatus: ProjectStatus = ProjectStatus.INITIATION;
+  ProjectStatus = ProjectStatus;
+  projectStatuses = Object.values(ProjectStatus);
 
   // Resource Utilization properties
   loading: boolean = false;
@@ -162,11 +127,18 @@ export class ProjectManagementComponent implements OnInit {
 
   projectTeamMembers: TeamMember[] = [];
   availableAssignees: User[] = [];
+  isJiraLocked: boolean = true;
 
   constructor(private router: Router) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
-      this.currentProject = navigation.extras.state['project'];
+      const project = navigation.extras.state['project'];
+      if (project) {
+        this.currentProject = {
+          ...project,
+          status: project.status || ProjectStatus.INITIATION
+        };
+      }
     }
   }
 
@@ -191,7 +163,7 @@ export class ProjectManagementComponent implements OnInit {
   loadProjectData() {
     // Load project with team information
     const projects = JSON.parse(localStorage.getItem('projects') || '[]');
-    const project = projects.find((p: Project) => p.project_id === this.currentProject.id);
+    const project = projects.find((p: Project) => p.project_id === this.currentProject?.project_id);
     
     if (project) {
       // Load team information
@@ -221,14 +193,14 @@ export class ProjectManagementComponent implements OnInit {
   }
 
   loadTasks() {
-    const storedTasks = localStorage.getItem(`tasks_${this.currentProject.id}`);
+    const storedTasks = localStorage.getItem(`tasks_${this.currentProject?.project_id}`);
     if (storedTasks) {
       this.tasks = JSON.parse(storedTasks);
     }
   }
 
   loadResources() {
-    const storedResources = localStorage.getItem(`resources_${this.currentProject.id}`);
+    const storedResources = localStorage.getItem(`resources_${this.currentProject?.project_id}`);
     if (storedResources) {
       this.resources = JSON.parse(storedResources);
     }
@@ -242,7 +214,7 @@ export class ProjectManagementComponent implements OnInit {
     // 1. Report to the current manager
     // 2. Are not already in the project team
     this.availableAssignees = allUsers.filter((user: User) => {
-      const isReportingToManager = user.user_id === this.currentProject.team?.team_lead_id;
+      const isReportingToManager = user.user_id === this.currentProject?.team?.team_lead_id;
       const isNotInProject = !this.resources.some(resource => resource.eid === user.user_id);
       return isReportingToManager && isNotInProject;
     });
@@ -252,24 +224,27 @@ export class ProjectManagementComponent implements OnInit {
     if (task) {
       this.selectedTask = { ...task };
       this.isEditing = true;
+      this.isJiraLocked = !task.jiraLink;
     } else {
       this.selectedTask = {
-        task_id: this.tasks.length + 1,
-        project_id: this.currentProject.id,
-        task_name: '',
+        taskId: this.tasks.length + 1,
+        projectID: parseInt(this.currentProject?.project_id || '0'),
+        assignedTo: 0,
         description: '',
-        planned_start_date: '',
-        planned_end_date: '',
-        actual_start_date: null,
-        actual_end_date: null,
+        deadline: '',
         status: 'Not Started',
         priority: 'Medium',
-        estimated_hours: 0,
-        actual_hours: null,
-        assignee_id: '',
-        comments: []
+        jiraLink: null,
+        taskName: '',
+        plannedStartDate: '',
+        plannedEndDate: '',
+        actualStartDate: null,
+        actualEndDate: null,
+        estimatedHours: 0,
+        actualHours: null
       };
       this.isEditing = false;
+      this.isJiraLocked = true;
     }
     this.showTaskModal = true;
   }
@@ -279,14 +254,11 @@ export class ProjectManagementComponent implements OnInit {
     this.showResourceModal = true;
   }
 
-  openCommentModal(task: Task) {
-    this.selectedTask = task;
-    this.newComment = {
-      author: 'Current User', // TODO: Get actual user name
-      date: new Date().toISOString(),
-      text: ''
-    };
-    this.showCommentModal = true;
+  openStatusModal() {
+    if (this.currentProject) {
+      this.selectedStatus = this.currentProject.status as ProjectStatus;
+      this.showStatusModal = true;
+    }
   }
 
   closeTaskModal() {
@@ -297,35 +269,29 @@ export class ProjectManagementComponent implements OnInit {
 
   closeResourceModal() {
     this.showResourceModal = false;
-    this.newResource = {
-      name: '',
-      eid: '',
-      role: '',
-      hours: 0,
-      assignedTasks: []
-    };
   }
 
-  closeCommentModal() {
-    this.showCommentModal = false;
-    this.newComment = {
-      author: '',
-      date: '',
-      text: ''
-    };
+  closeStatusModal() {
+    this.showStatusModal = false;
+    this.selectedStatus = ProjectStatus.INITIATION;
   }
 
   saveTask() {
     if (this.selectedTask) {
       // Get assignee details
-      const assignee = this.availableAssignees.find(u => u.user_id === this.selectedTask?.assignee_id);
+      const assignee = this.availableAssignees.find(u => u.user_id === this.selectedTask?.assignedTo.toString());
       
       if (assignee) {
         this.selectedTask.assignee = assignee;
       }
 
+      // Handle Jira link
+      if (this.isJiraLocked) {
+        this.selectedTask.jiraLink = null;
+      }
+
       if (this.isEditing) {
-        const index = this.tasks.findIndex(t => t.task_id === this.selectedTask?.task_id);
+        const index = this.tasks.findIndex(t => t.taskId === this.selectedTask?.taskId);
         if (index !== -1) {
           this.tasks[index] = { ...this.selectedTask };
         }
@@ -333,49 +299,30 @@ export class ProjectManagementComponent implements OnInit {
         this.tasks.push({ ...this.selectedTask });
       }
       
-      localStorage.setItem(`tasks_${this.currentProject.id}`, JSON.stringify(this.tasks));
+      localStorage.setItem(`tasks_${this.currentProject?.project_id}`, JSON.stringify(this.tasks));
       this.closeTaskModal();
-    }
-  }
-
-  saveResource() {
-    if (this.newResource.name && this.newResource.eid && this.newResource.role) {
-      this.resources.push({ ...this.newResource });
-      localStorage.setItem(`resources_${this.currentProject.id}`, JSON.stringify(this.resources));
-      this.closeResourceModal();
-    }
-  }
-
-  saveComment() {
-    if (this.selectedTask && this.newComment.text) {
-      const taskIndex = this.tasks.findIndex(t => t.task_id === this.selectedTask?.task_id);
-      if (taskIndex !== -1) {
-        this.tasks[taskIndex].comments.push({ ...this.newComment });
-        localStorage.setItem(`tasks_${this.currentProject.id}`, JSON.stringify(this.tasks));
-        this.closeCommentModal();
-      }
     }
   }
 
   deleteTask(taskId: number) {
     if (confirm('Are you sure you want to delete this task?')) {
-      this.tasks = this.tasks.filter(t => t.task_id !== taskId);
-      localStorage.setItem(`tasks_${this.currentProject.id}`, JSON.stringify(this.tasks));
+      this.tasks = this.tasks.filter(t => t.taskId !== taskId);
+      localStorage.setItem(`tasks_${this.currentProject?.project_id}`, JSON.stringify(this.tasks));
     }
   }
 
   removeResource(resource: Resource) {
     if (confirm('Are you sure you want to remove this team member?')) {
       this.resources = this.resources.filter(r => r.eid !== resource.eid);
-      localStorage.setItem(`resources_${this.currentProject.id}`, JSON.stringify(this.resources));
+      localStorage.setItem(`resources_${this.currentProject?.project_id}`, JSON.stringify(this.resources));
     }
   }
 
   updateTaskStatus(task: Task, newStatus: string) {
-    const index = this.tasks.findIndex(t => t.task_id === task.task_id);
+    const index = this.tasks.findIndex(t => t.taskId === task.taskId);
     if (index !== -1) {
       this.tasks[index].status = newStatus;
-      localStorage.setItem(`tasks_${this.currentProject.id}`, JSON.stringify(this.tasks));
+      localStorage.setItem(`tasks_${this.currentProject?.project_id}`, JSON.stringify(this.tasks));
     }
   }
 
@@ -409,9 +356,9 @@ export class ProjectManagementComponent implements OnInit {
     try {
       // Calculate utilization for each resource
       this.resourceUtilizationData = this.resources.map(resource => {
-        const assignedTasks = this.tasks.filter(task => task.assignee_id === resource.eid);
+        const assignedTasks = this.tasks.filter(task => task.assignedTo.toString() === resource.eid);
         const assignedHours = assignedTasks.reduce((total, task) => 
-          total + (parseInt(task.estimated_hours.toString()) || 0), 0);
+          total + (task.estimatedHours || 0), 0);
         
         // Assume 40 hours per week (8 hours/day * 5 days)
         const availableHours = 40;
@@ -425,9 +372,9 @@ export class ProjectManagementComponent implements OnInit {
           availableHours,
           utilizationPercentage,
           tasks: assignedTasks.map(task => ({
-            taskName: task.task_name,
-            estimatedHours: parseInt(task.estimated_hours.toString()) || 0,
-            actualHours: parseInt(task.actual_hours?.toString() || '0') || 0,
+            taskName: task.taskName,
+            estimatedHours: task.estimatedHours || 0,
+            actualHours: task.actualHours || 0,
             status: task.status
           }))
         };
@@ -468,7 +415,7 @@ export class ProjectManagementComponent implements OnInit {
 
     // Add to resources
     this.resources.push(newResource);
-    localStorage.setItem(`resources_${this.currentProject.id}`, JSON.stringify(this.resources));
+    localStorage.setItem(`resources_${this.currentProject?.project_id}`, JSON.stringify(this.resources));
     
     // Remove from available users
     this.availableAssignees = this.availableAssignees.filter(u => u.user_id !== user.user_id);
@@ -476,6 +423,54 @@ export class ProjectManagementComponent implements OnInit {
     // Close modal if no more available users
     if (this.availableAssignees.length === 0) {
       this.closeResourceModal();
+    }
+  }
+
+  updateProjectStatus() {
+    if (this.selectedStatus && this.currentProject) {
+      // Update project status in localStorage
+      const projects = JSON.parse(localStorage.getItem('projects') || '[]');
+      const projectIndex = projects.findIndex((p: Project) => p.project_id === this.currentProject?.project_id);
+      
+      if (projectIndex !== -1) {
+        projects[projectIndex].status = this.selectedStatus;
+        localStorage.setItem('projects', JSON.stringify(projects));
+        
+        // Update current project
+        if (this.currentProject) {
+          this.currentProject.status = this.selectedStatus;
+        }
+      }
+      
+      this.closeStatusModal();
+    }
+  }
+
+  getProjectStatusClass(status: ProjectStatus | undefined): string {
+    if (!status) return '';
+    
+    switch (status) {
+      case ProjectStatus.INITIATION:
+        return 'status-initiation';
+      case ProjectStatus.PLANNING:
+        return 'status-planning';
+      case ProjectStatus.EXECUTION:
+        return 'status-execution';
+      case ProjectStatus.MONITORING:
+        return 'status-monitoring';
+      case ProjectStatus.CLOSURE:
+        return 'status-closure';
+      default:
+        return '';
+    }
+  }
+
+  toggleJiraLock(): void {
+    this.isJiraLocked = !this.isJiraLocked;
+    if (this.selectedTask) {
+      if (this.isJiraLocked) {
+        this.selectedTask.jiraLink = null;
+      }
     }
   }
 } 

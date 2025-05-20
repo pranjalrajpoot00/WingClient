@@ -3,11 +3,29 @@
     <i class="fas fa-home"></i> <a href="#" (click)="navigateBack()">Home</a> > Project Management
 </div>
 
+<!-- Project Header -->
+<div class="project-header">
+    <div class="project-title">
+        <h1>{{ currentProject?.project_name }}</h1>
+        <div class="project-status">
+            <span class="status-label">Current Status:</span>
+            <span class="status-badge" [ngClass]="getProjectStatusClass(currentProject?.status)">
+                {{ currentProject?.status }}
+            </span>
+            <button class="btn primary update-status-btn" (click)="openStatusModal()">
+                <i class="fas fa-edit"></i> Update Status
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Navigation Tabs -->
 <div class="navigation">
-    <div class="tabs">
-        <a class="tab" [class.active]="activeTab === 'Project Management'" (click)="setActiveTab('Project Management')">Project Management</a>
-        <a class="tab" [class.active]="activeTab === 'Resource Management'" (click)="setActiveTab('Resource Management')">Resource Management</a>
+    <div class="tabs-container">
+        <div class="tabs">
+            <a class="tab" [class.active]="activeTab === 'Project Management'" (click)="setActiveTab('Project Management')">Project Management</a>
+            <a class="tab" [class.active]="activeTab === 'Resource Management'" (click)="setActiveTab('Resource Management')">Resource Management</a>
+        </div>
     </div>
 </div>
 
@@ -40,12 +58,12 @@
             </thead>
             <tbody>
                 <tr *ngFor="let task of tasks">
-                    <td>{{ task.task_name }}</td>
+                    <td>{{ task.taskName }}</td>
                     <td>{{ task.description }}</td>
-                    <td>{{ task.planned_start_date | date:'shortDate' }}</td>
-                    <td>{{ task.planned_end_date | date:'shortDate' }}</td>
+                    <td>{{ task.plannedStartDate | date:'shortDate' }}</td>
+                    <td>{{ task.plannedEndDate | date:'shortDate' }}</td>
                     <td>{{ task.assignee?.full_name }}</td>
-                    <td>{{ task.estimated_hours }}</td>
+                    <td>{{ task.estimatedHours }}</td>
                     <td>
                         <span class="priority-badge" [class]="'priority-' + task.priority.toLowerCase()">
                             {{ task.priority }}
@@ -57,13 +75,10 @@
                         </span>
                     </td>
                     <td class="actions-cell">
-                        <button class="btn icon" (click)="openTaskModal(task)" title="Edit">
+                        <button class="btn icon" (click)="openTaskModal(task)" title="Edit Task">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn icon" (click)="openCommentModal(task)" title="Comments">
-                            <i class="fas fa-comments"></i>
-                        </button>
-                        <button class="btn icon delete" (click)="deleteTask(task.task_id)" title="Delete">
+                        <button class="btn icon delete" (click)="deleteTask(task.taskId)" title="Delete Task">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -91,7 +106,7 @@
     <!-- Resource Utilization Content -->
     <div class="content" *ngIf="!loading && !error">
         <div class="header">
-            <h1>Resource Utilization - {{ currentProject?.name }}</h1>
+            <h1>Resource Utilization - {{ currentProject?.project_name }}</h1>
         </div>
 
         <!-- Utilization Chart -->
@@ -167,18 +182,19 @@
                     <table class="resources-table">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Role</th>
+                                <th>Member Name</th>
+                                <th>Role in Project</th>
+                                <th>No of Tasks Assigned</th>
                                 <th>Assigned Hours</th>
                                 <th>Available Hours</th>
                                 <th>Utilization</th>
-                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr *ngFor="let resource of resourceUtilizationData">
                                 <td>{{ resource.name }}</td>
                                 <td>{{ resource.role }}</td>
+                                <td>{{ resource.tasks.length }}</td>
                                 <td>{{ resource.assignedHours }}</td>
                                 <td>{{ resource.availableHours }}</td>
                                 <td>
@@ -187,18 +203,6 @@
                                           [class.info]="resource.utilizationPercentage < 50"
                                           [class.success]="resource.utilizationPercentage >= 50 && resource.utilizationPercentage <= 100">
                                         {{ resource.utilizationPercentage | number:'1.0-1' }}%
-                                    </span>
-                                </td>
-                                <td>
-                                    <span *ngIf="resource.utilizationPercentage > 100" class="status-badge warning">
-                                        Over-utilized
-                                    </span>
-                                    <span *ngIf="resource.utilizationPercentage < 50" class="status-badge info">
-                                        Under-utilized
-                                    </span>
-                                    <span *ngIf="resource.utilizationPercentage >= 50 && resource.utilizationPercentage <= 100" 
-                                          class="status-badge success">
-                                        Optimal
                                     </span>
                                 </td>
                             </tr>
@@ -217,7 +221,7 @@
         <form (ngSubmit)="saveTask()" #taskForm="ngForm">
             <div class="form-group">
                 <label for="taskName">Task Name</label>
-                <input type="text" id="taskName" name="task_name" [(ngModel)]="selectedTask!.task_name" required>
+                <input type="text" id="taskName" name="taskName" [(ngModel)]="selectedTask!.taskName" required>
             </div>
             <div class="form-group">
                 <label for="taskDescription">Description</label>
@@ -226,17 +230,27 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="plannedStartDate">Planned Start Date</label>
-                    <input type="date" id="plannedStartDate" name="planned_start_date" [(ngModel)]="selectedTask!.planned_start_date" required>
+                    <input type="date" id="plannedStartDate" name="plannedStartDate" [(ngModel)]="selectedTask!.plannedStartDate" required>
                 </div>
                 <div class="form-group">
                     <label for="plannedEndDate">Planned End Date</label>
-                    <input type="date" id="plannedEndDate" name="planned_end_date" [(ngModel)]="selectedTask!.planned_end_date" required>
+                    <input type="date" id="plannedEndDate" name="plannedEndDate" [(ngModel)]="selectedTask!.plannedEndDate" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="actualStartDate">Actual Start Date</label>
+                    <input type="date" id="actualStartDate" name="actualStartDate" [(ngModel)]="selectedTask!.actualStartDate">
+                </div>
+                <div class="form-group">
+                    <label for="actualEndDate">Actual End Date</label>
+                    <input type="date" id="actualEndDate" name="actualEndDate" [(ngModel)]="selectedTask!.actualEndDate">
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
                     <label for="taskAssignee">Assignee</label>
-                    <select id="taskAssignee" name="assignee_id" [(ngModel)]="selectedTask!.assignee_id" required>
+                    <select id="taskAssignee" name="assignedTo" [(ngModel)]="selectedTask!.assignedTo" required>
                         <option value="">Select Team Member</option>
                         <option *ngFor="let member of availableAssignees" [value]="member.user_id">
                             {{ member.full_name }} ({{ member.role }})
@@ -255,15 +269,35 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="estimatedHours">Estimated Hours</label>
-                    <input type="number" id="estimatedHours" name="estimated_hours" [(ngModel)]="selectedTask!.estimated_hours" required min="0">
+                    <input type="number" id="estimatedHours" name="estimatedHours" [(ngModel)]="selectedTask!.estimatedHours" required min="0" step="0.01">
                 </div>
                 <div class="form-group">
-                    <label for="taskStatus">Status</label>
-                    <select id="taskStatus" name="status" [(ngModel)]="selectedTask!.status" required>
-                        <option value="Not Started">Not Started</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Completed">Completed</option>
-                    </select>
+                    <label for="actualHours">Actual Hours</label>
+                    <input type="number" id="actualHours" name="actualHours" [(ngModel)]="selectedTask!.actualHours" min="0" step="0.01">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="taskStatus">Status</label>
+                <select id="taskStatus" name="status" [(ngModel)]="selectedTask!.status" required>
+                    <option value="Not Started">Not Started</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <div class="label-with-icon">
+                    <label for="jira-link">
+                        Jira Link
+                        <i class="fas" [class.fa-lock]="isJiraLocked" [class.fa-unlock]="!isJiraLocked" 
+                           (click)="toggleJiraLock()" [class.locked]="isJiraLocked" 
+                           [title]="isJiraLocked ? 'Click to unlock and enter Jira link' : 'Click to lock Jira link'"></i>
+                    </label>
+                </div>
+                <div class="jira-input-wrapper">
+                    <input type="text" id="jira-link" name="jiraLink" [(ngModel)]="selectedTask!.jiraLink" 
+                           maxlength="200" 
+                           placeholder="Enter Jira link"
+                           [disabled]="isJiraLocked">
                 </div>
             </div>
             <div class="modal-actions">
@@ -302,27 +336,22 @@
     </div>
 </div>
 
-<!-- Comment Modal -->
-<div class="modal" *ngIf="showCommentModal">
+<!-- Project Status Modal -->
+<div class="modal" *ngIf="showStatusModal">
     <div class="modal-content">
-        <h2>Add Comment</h2>
-        <div class="comments-list" *ngIf="selectedTask && selectedTask.comments.length">
-            <div class="comment" *ngFor="let comment of selectedTask.comments">
-                <div class="comment-header">
-                    <span class="comment-author">{{ comment.author }}</span>
-                    <span class="comment-date">{{ comment.date | date:'short' }}</span>
-                </div>
-                <div class="comment-text">{{ comment.text }}</div>
-            </div>
-        </div>
-        <form (ngSubmit)="saveComment()" #commentForm="ngForm">
+        <h2>Update Project Status</h2>
+        <form (ngSubmit)="updateProjectStatus()" #statusForm="ngForm">
             <div class="form-group">
-                <label for="commentText">New Comment</label>
-                <textarea id="commentText" name="text" [(ngModel)]="newComment.text" required></textarea>
+                <label for="projectStatus">Project Status</label>
+                <select id="projectStatus" name="status" [(ngModel)]="selectedStatus" required>
+                    <option *ngFor="let status of projectStatuses" [value]="status">
+                        {{ status }}
+                    </option>
+                </select>
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn secondary" (click)="closeCommentModal()">Close</button>
-                <button type="submit" class="btn primary" [disabled]="!commentForm.form.valid">Add Comment</button>
+                <button type="button" class="btn secondary" (click)="closeStatusModal()">Cancel</button>
+                <button type="submit" class="btn primary" [disabled]="!statusForm.form.valid">Update Status</button>
             </div>
         </form>
     </div>

@@ -65,15 +65,7 @@ export class ManagerDashboardComponent implements OnInit {
     this.loading = true;
     // TODO: Replace with actual API calls
     // Mock data for demonstration
-    this.stats = {
-      activeProjects: 5,
-      totalTeamMembers: 12,
-      pendingTasks: 15,
-      completedTasks: 28,
-      upcomingDeadlines: 3
-    };
-
-    this.recentProjects = [
+    const allProjects = [
       {
         projectId: 1,
         projectName: 'Project Alpha',
@@ -95,8 +87,46 @@ export class ManagerDashboardComponent implements OnInit {
         priority: 'Medium',
         teamLead: 'Jane Smith',
         teamSize: 4
+      },
+      {
+        projectId: 3,
+        projectName: 'Project Gamma',
+        status: 'In Progress',
+        description: 'Database Migration',
+        startDate: '2024-03-10',
+        endDate: '2024-03-25', // Within 15 days
+        priority: 'High',
+        teamLead: 'Mike Johnson',
+        teamSize: 3
       }
     ];
+
+    // Filter recent projects (added in last 15 days)
+    const fifteenDaysAgo = new Date();
+    fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
+    
+    this.recentProjects = allProjects.filter(project => {
+      const startDate = new Date(project.startDate);
+      return startDate >= fifteenDaysAgo;
+    });
+
+    // Calculate upcoming deadlines (projects ending within 15 days)
+    const today = new Date();
+    const fifteenDaysFromNow = new Date();
+    fifteenDaysFromNow.setDate(today.getDate() + 15);
+
+    const upcomingDeadlines = allProjects.filter(project => {
+      const endDate = new Date(project.endDate);
+      return endDate >= today && endDate <= fifteenDaysFromNow;
+    }).length;
+
+    this.stats = {
+      activeProjects: allProjects.filter(p => p.status === 'In Progress').length,
+      totalTeamMembers: 12,
+      pendingTasks: 15,
+      completedTasks: 28,
+      upcomingDeadlines: upcomingDeadlines
+    };
 
     this.loading = false;
   }
@@ -106,7 +136,9 @@ export class ManagerDashboardComponent implements OnInit {
   }
 
   navigateToCreateProject() {
-    this.router.navigate(['/planepage/create-project']);
+    this.router.navigate(['/planepage/create-project'], {
+      state: { fromDashboard: true }
+    });
   }
 
   navigateToMyTeam() {

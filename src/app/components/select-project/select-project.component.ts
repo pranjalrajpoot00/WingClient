@@ -2,17 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-
-interface Project {
-  id: number;
-  name: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  status: string;
-  projectManager: number; // ID of the project manager
-  teamMembers: TeamMember[];
-}
+import { ProjectStatus, Project } from '../../types/project.types';
 
 interface TeamMember {
   name: string;
@@ -40,6 +30,7 @@ export class SelectProjectComponent implements OnInit {
     reopenModal?: boolean;
     updatedProject?: Project;
   } | null = null;
+  ProjectStatus = ProjectStatus; // Make enum available in template
 
   constructor(
     private router: Router,
@@ -60,14 +51,14 @@ export class SelectProjectComponent implements OnInit {
 
   private isValidProject(project: any): project is Project {
     return project 
-      && typeof project.id === 'number'
-      && typeof project.name === 'string'
+      && typeof project.project_id === 'string'
+      && typeof project.project_name === 'string'
       && typeof project.description === 'string'
-      && typeof project.startDate === 'string'
-      && typeof project.endDate === 'string'
+      && typeof project.start_date === 'string'
+      && typeof project.end_date === 'string'
       && typeof project.status === 'string'
-      && typeof project.projectManager === 'number'
-      && Array.isArray(project.teamMembers);
+      && typeof project.priority === 'string'
+      && typeof project.team_id === 'string';
   }
 
   ngOnInit() {
@@ -90,40 +81,46 @@ export class SelectProjectComponent implements OnInit {
     // Mock data for projects
     this.projects = [
       {
-        id: 1,
-        name: 'Project Alpha',
+        project_id: '1',
+        project_name: 'Project Alpha',
         description: 'A cutting-edge software development project',
-        startDate: '2024-01-01',
-        endDate: '2024-06-30',
-        status: 'Active',
-        projectManager: this.currentManagerId,
-        teamMembers: [
-          { name: 'John Doe', role: 'Team Lead' },
-          { name: 'Jane Smith', role: 'Developer' }
-        ]
+        start_date: '2024-01-01',
+        end_date: '2024-06-30',
+        status: ProjectStatus.INITIATION,
+        priority: 'High',
+        team_id: '1',
+        team: {
+          team_id: '1',
+          team_name: 'Alpha Team',
+          team_lead_id: '1',
+          department: 'Engineering'
+        }
       },
       {
-        id: 2,
-        name: 'Project Beta',
+        project_id: '2',
+        project_name: 'Project Beta',
         description: 'Mobile application development',
-        startDate: '2024-02-01',
-        endDate: '2024-08-31',
-        status: 'Planning',
-        projectManager: this.currentManagerId,
-        teamMembers: [
-          { name: 'Mike Johnson', role: 'Team Lead' },
-          { name: 'Sarah Wilson', role: 'Developer' }
-        ]
+        start_date: '2024-02-01',
+        end_date: '2024-08-31',
+        status: ProjectStatus.PLANNING,
+        priority: 'Medium',
+        team_id: '2',
+        team: {
+          team_id: '2',
+          team_name: 'Beta Team',
+          team_lead_id: '2',
+          department: 'Engineering'
+        }
       }
-    ].filter(project => project.projectManager === this.currentManagerId);
+    ];
 
     // Also load projects from localStorage to ensure we have the latest data
     const storedProjects = JSON.parse(localStorage.getItem('projects') || '[]') as Project[];
     if (storedProjects.length > 0) {
       // Merge stored projects with mock data, preferring stored data
-      const storedProjectMap = new Map(storedProjects.map(p => [p.id, p]));
+      const storedProjectMap = new Map(storedProjects.map(p => [p.project_id, p]));
       this.projects = this.projects.map(project => 
-        storedProjectMap.get(project.id) || project
+        storedProjectMap.get(project.project_id) || project
       );
     }
   }
@@ -137,13 +134,13 @@ export class SelectProjectComponent implements OnInit {
         console.log('Handling updated project:', updatedProject);
         
         // Update the project in the projects list
-        const index = this.projects.findIndex(p => p.id === updatedProject.id);
+        const index = this.projects.findIndex(p => p.project_id === updatedProject.project_id);
         if (index !== -1) {
           console.log('Updating project at index:', index);
           this.projects[index] = updatedProject;
           // Update localStorage
           const storedProjects = JSON.parse(localStorage.getItem('projects') || '[]');
-          const storedIndex = storedProjects.findIndex((p: Project) => p.id === updatedProject.id);
+          const storedIndex = storedProjects.findIndex((p: Project) => p.project_id === updatedProject.project_id);
           if (storedIndex !== -1) {
             storedProjects[storedIndex] = updatedProject;
             localStorage.setItem('projects', JSON.stringify(storedProjects));
@@ -153,7 +150,7 @@ export class SelectProjectComponent implements OnInit {
           this.selectedProject = updatedProject;
           this.showModal = true;
         } else {
-          console.error('Project not found in list:', updatedProject.id);
+          console.error('Project not found in list:', updatedProject.project_id);
         }
       }
     }
@@ -192,12 +189,31 @@ export class SelectProjectComponent implements OnInit {
 
   navigateToEditProject() {
     if (this.selectedProject) {
-      this.router.navigate(['/planepage/create-project'], {
-        state: { 
-          mode: 'edit',
-          project: this.selectedProject 
-        }
-      });
+      // Store the project data before closing modal
+      const projectData = {
+        project_id: this.selectedProject.project_id,
+        project_name: this.selectedProject.project_name,
+        description: this.selectedProject.description,
+        start_date: this.selectedProject.start_date,
+        end_date: this.selectedProject.end_date,
+        status: this.selectedProject.status,
+        priority: this.selectedProject.priority,
+        team_id: this.selectedProject.team_id,
+        team: this.selectedProject.team
+      };
+
+      // Close the modal first
+      this.closeModal();
+      
+      // Use setTimeout to ensure modal is closed before navigation
+      setTimeout(() => {
+        this.router.navigate(['/planepage/create-project'], {
+          state: { 
+            mode: 'edit',
+            project: projectData
+          }
+        });
+      }, 100);
     }
   }
 
@@ -233,5 +249,24 @@ export class SelectProjectComponent implements OnInit {
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  getStatusClass(status: ProjectStatus | undefined): string {
+    if (!status) return '';
+    
+    switch (status) {
+      case ProjectStatus.INITIATION:
+        return 'status-initiation';
+      case ProjectStatus.PLANNING:
+        return 'status-planning';
+      case ProjectStatus.EXECUTION:
+        return 'status-execution';
+      case ProjectStatus.MONITORING:
+        return 'status-monitoring';
+      case ProjectStatus.CLOSURE:
+        return 'status-closure';
+      default:
+        return '';
+    }
   }
 }
